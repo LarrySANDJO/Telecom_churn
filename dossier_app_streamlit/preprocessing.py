@@ -124,7 +124,6 @@ def main():
     df = pd.read_csv('data/nig_data_churn_clean.csv')
     
 
-
     # Préparation des données
     X_train, X_test, y_train, y_test = prepare_data(df)
     

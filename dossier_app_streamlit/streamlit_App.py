@@ -28,8 +28,8 @@ def load_data(data):
     data_preprocessed = preprocessor.transform(data)
     
     # Prédictions
-    predictions = model.predict(data_preprocessed)
-    proba_predictions = model.predict_proba(data_preprocessed)[:, 1]
+    predictions = model.predict(data)
+    proba_predictions = model.predict_proba(data)[:, 1]
     
     # Ajout des colonnes de prédiction
     data['Churn_Prediction'] = predictions
