@@ -153,3 +153,96 @@ def home_page(filtered_df):
     
         # Afficher le graphique
         st.plotly_chart(churn_chart, use_container_width=True)
+        
+        
+        
+    # Troisième ligne de graphiques
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # Dépenses totales
+        active_clients["Total Spend"] = (
+        active_clients["Total SMS Spend"] +
+        active_clients["Total Data Spend"] +
+        active_clients["Total Onnet spend"] +
+        active_clients["Total Offnet spend"]
+        )
+
+        # Pourcentage des services
+        service_percentages = active_clients[[
+        "Total SMS Spend", "Total Data Spend", "Total Onnet spend", "Total Offnet spend"
+        ]].sum() / active_clients["Total Spend"].sum() * 100
+
+        # Création du DataFrame pour le Pie Chart
+        service_df = pd.DataFrame({
+        "Service": ["SMS", "Data", "Appels Onnet", "Appels Offnet"],
+        "Pourcentage": service_percentages.values
+        })
+
+        # Attribution des couleurs en fonction du niveau de dépenses
+        color_map = {
+        "Data": "green",       # Plus élevé
+        "Appels Onnet": "yellow",  
+        "Appels Offnet": "orange",
+        "SMS": "red"           # Plus faible
+        }
+
+        #  PIE CHART (DÉPENSES PAR SERVICE)
+        fig_service = px.pie(
+            service_df, 
+            names="Service", 
+            values="Pourcentage", 
+            title="Répartition des dépenses par service",
+            color="Service",
+            color_discrete_map=color_map
+        )
+
+        # Personnalisation des labels
+        fig_service.update_traces(
+            textinfo="label+percent",  # Afficher labels et % sur les secteurs
+            texttemplate="<b>%{label} : %{percent:.1%}</b>",  
+            insidetextfont=dict(size=14)  
+        )
+
+        # Supprimer la légende
+        fig_service.update_layout(showlegend=False)
+        
+        st.plotly_chart(fig_service, use_container_width=True)
+    
+    with col2:
+
+        # Somme des dépenses par segment, triées dans l'ordre décroissant
+        segment_spend = active_clients.groupby("Segment")["Total Spend"].sum().reset_index()
+        segment_spend = segment_spend.sort_values(by="Total Spend", ascending=False)
+
+        # Ajout des pourcentages
+        segment_spend["Pourcentage"] = (segment_spend["Total Spend"] / segment_spend["Total Spend"].sum()) * 100
+
+        # Création du graphique en barres
+        fig_segment = px.bar(
+            segment_spend, 
+            x="Segment", 
+            y="Pourcentage", 
+            title="Dépenses totales par segment",
+            text_auto=".1f",  # Affichage des valeurs au-dessus des barres
+            color_discrete_sequence=["#1f77b4"]  # Une seule couleur pour toutes les barres
+        )
+
+        # Personnalisation
+        fig_segment.update_traces(
+            texttemplate="<b>%{y:.2f}%</b>",  # Affichage des pourcentages en gras
+            textposition="outside"
+        )
+
+        fig_segment.update_layout(
+            xaxis=dict(
+                title=None,  
+                tickfont=dict(size=14, family="Arial Black")  
+                ),
+            yaxis=dict(
+                showticklabels=False , 
+                title_font=dict(size=16, family="Arial", weight="bold")  
+            )
+        )
+
+        st.plotly_chart(fig_segment, use_container_width=True)

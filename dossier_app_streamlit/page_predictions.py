@@ -10,6 +10,7 @@ def predictions_page(filtered_df):
     
     # Chargement du modèle ( contient déjà le pipeline de traitement)
     model = joblib.load('churn_model.joblib')
+    pipeline = joblib.load('preprocessor.joblib')
     
     # Première ligne de métriques
     col1, col2 = st.columns(2)
@@ -136,6 +137,7 @@ def predictions_page(filtered_df):
                     importances = importances[:len(feature_names)]
                 
                 feature_imp = pd.DataFrame({'feature': feature_names, 'importance': importances})
+                feature_imp['importance'] = feature_imp['importance'] * 100  
                 feature_imp = feature_imp.sort_values('importance', ascending=False).head(10)
                 
                 # Graphique des importances
@@ -149,7 +151,7 @@ def predictions_page(filtered_df):
                 
                 # Personnalisation du graphique
                 fig.update_traces(
-                    texttemplate='<b>%{text:.2f}</b>',  # Afficher les importances sur les barres avec 2 décimales
+                    texttemplate='<b>%{text:.1f}%</b>',  # Afficher les importances sur les barres avec 2 décimales
                     textposition='outside',  # Positionner les valeurs à l'intérieur des barres
                 )
                 
@@ -177,7 +179,7 @@ def predictions_page(filtered_df):
     st.header("Prédictions")
     
     # Section des variables à entrer
-    with st.expander("Les variables à entrer (valeurs à sélectionner pour les cas possible)", expanded=True):
+    with st.expander("Veuillez saisir les données", expanded=True):
         # Organiser les variables en 3 colonnes
         col1, col2, col3 = st.columns(3)
         
@@ -305,12 +307,19 @@ def predictions_page(filtered_df):
                 'Most Loved Competitor network in in Month 2': [competitor_month2]
             })
             
+            # Appliquer le pipeline pour transformer les nouvelles données
+            #new_data_transformed = pipeline.transform(new_data)
+
+            
             # Faire la prédiction
+            # Transformer les données avec le pipeline
+            #new_data_transformed = pipeline.transform(new_data)
+
+            # Prédire avec le modèle
+            # prediction = model.predict(new_data_transformed)
             try:
                 # Prédiction de la probabilité
-                proba = model.predict_proba(new_data)[:, 1]
-                if proba.shape[0] == 1:  
-                    proba = proba[0]  # Convertir en float si un seul client
+                proba = model.predict_proba(new_data)[:, 1][0]
                 prediction = model.predict(new_data)[0]
                 
                 # Déterminer les couleurs et messages selon la gravité
@@ -327,7 +336,7 @@ def predictions_page(filtered_df):
                     color = "red"
                     risk_level = "🚨Critique"
                 
-                # Affichage des résultats avec mise en forme colorée
+                # Affichage des résultats 
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -382,6 +391,7 @@ def predictions_page(filtered_df):
                 st.write("Veuillez vérifier que les entrées correspondent aux attentes du modèle.")
 
 
+    # Prediction dans le cas de données dans un fichier excel
     # Chargement et affichage du fichier Excel ou CSV
     uploaded_file = st.file_uploader("Importer un fichier Excel ou CSV", type=["xlsx", "csv"], key="file_upload")
     if uploaded_file is not None:
@@ -393,7 +403,9 @@ def predictions_page(filtered_df):
         st.write("### Aperçu des données importées")
         st.dataframe(new_data.head())
         
-        # Faire la prédiction
+        # Appliquer la transformation avec le pipeline
+        new_data_transformed = pipeline.transform(new_data)
+
         try:
             # Prédiction de la probabilité
             proba = model.predict_proba(new_data)[:, 1]

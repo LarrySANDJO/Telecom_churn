@@ -18,7 +18,7 @@ st.set_page_config(
 
 # Chargement du modèle et du preprocesseur
 model = joblib.load('churn_model.joblib')
-preprocessor = joblib.load('preprocessor.joblib')
+pipeline = joblib.load('preprocessor.joblib')
 
 # Fonction de chargement des données
 @st.cache_data
@@ -66,7 +66,7 @@ def sidebar_filters(df):
     df['Segment'] = pd.qcut(
         df['Total Spend in Months 1 and 2 of 2017'], 
         q=4, 
-        labels=['Bas', 'Moyen-Bas', 'Moyen-Haut', 'Élevé']
+        labels=['Bas', 'Moyen-Inf', 'Moyen-Sup', 'Élevé']
     )
     
     segment_filter = st.sidebar.multiselect(
