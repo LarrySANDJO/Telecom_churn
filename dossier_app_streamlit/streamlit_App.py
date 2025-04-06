@@ -25,7 +25,7 @@ pipeline = joblib.load('preprocessor.joblib')
 def load_data(data):
     
     # Prétraitement des données
-    data_preprocessed = preprocessor.transform(data)
+    # data_preprocessed = preprocessor.transform(data)
     
     # Prédictions
     predictions = model.predict(data)
@@ -71,9 +71,10 @@ def sidebar_filters(df):
     
     segment_filter = st.sidebar.multiselect(
         "Segment Client", 
-        options=['Bas', 'Moyen-Bas', 'Moyen-Haut', 'Élevé'], 
-        default=['Bas', 'Moyen-Bas', 'Moyen-Haut', 'Élevé']
+        options=['Bas', 'Moyen-Inf', 'Moyen-sup', 'Élevé'], 
+        default=['Bas', 'Moyen-Inf', 'Moyen-sup', 'Élevé']
     )
+
     
     # Filtrage
     filtered_df = df[
@@ -123,7 +124,7 @@ def main():
     # Création de la barre de navigation avec st.tabs
     tabs = st.tabs(["📊 Accueil & KPIs", "🔮 Prédictions", "📋 Recommandations"])
     
-    # Filtres (appliqués à toutes les pages)
+    # Filtres 
     filtered_df = sidebar_filters(df)
     
     # Affichage du contenu en fonction de l'onglet sélectionné
