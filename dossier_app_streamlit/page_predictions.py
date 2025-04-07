@@ -9,8 +9,8 @@ def predictions_page(filtered_df):
     st.title("🔮 prédictions de churn")
     
     # Chargement du modèle ( contient déjà le pipeline de traitement)
-    model = joblib.load('churn_model.joblib')
-    pipeline = joblib.load('preprocessor.joblib')
+    model = joblib.load('dossier_app_streamlit/churn_model.joblib')
+    pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
     
     # Première ligne de métriques
     col1, col2 = st.columns(2)
