@@ -17,8 +17,8 @@ st.set_page_config(
 )
 
 # Chargement du modèle et du preprocesseur
-model = joblib.load('churn_model.joblib')
-pipeline = joblib.load('preprocessor.joblib')
+model = joblib.load('dossier_app_streamlit/churn_model.joblib')
+pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
 
 # Fonction de chargement des données
 @st.cache_data
@@ -93,7 +93,7 @@ def sidebar_filters(df):
 def main():
 
     # chargement et traitement de données
-    data = pd.read_csv('data/nig_clean.csv')
+    data = pd.read_csv('dossier_app_streamlit/data/nig_clean.csv')
 
     df = load_data(data)
     
