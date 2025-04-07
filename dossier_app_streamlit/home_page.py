@@ -15,7 +15,7 @@ def home_page(filtered_df):
         st.metric("Taux de Churn", f"{filtered_df['Churn Status'].mean()*100:.1f}%")
 
     with col2:
-        st.metric("Nombre et taux d'actifs", f"{(filtered_df['Churn Status'] == 0).sum()*100}({((filtered_df['Churn Status'] == 0).sum() / filtered_df.shape[0] * 100):.1f}%)")
+        st.metric("Nombre et taux d'actifs", f"{(filtered_df['Churn Status'] == 0).sum()}({((filtered_df['Churn Status'] == 0).sum() / filtered_df.shape[0] * 100):.1f}%)")
     
     with col3:
         active_clients = filtered_df[filtered_df['Churn Status'] == 0]
