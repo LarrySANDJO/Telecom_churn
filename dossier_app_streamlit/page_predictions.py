@@ -23,20 +23,16 @@ def predictions_page(filtered_df):
         # KPI: Taux de clients à haut risque (probabilité > 0.7)
         high_risk = active_clients[active_clients['Churn_Probability'] > 0.7].shape[0]
         st.metric("Clients à haut risque", f"{high_risk:,}({(high_risk / active_count * 100):.1f}%)")
-    
-    with col2:
-        # KPI: Nombre d'actifs prédits
-         st.metric("Nombre et taux  d'actifs", f"{(active_clients['Churn_Prediction'] == 0).sum()}({((active_clients['Churn_Prediction'] == 0).sum() / active_count * 100):.1f}%)")
-        
+       
         
     # Deuxième ligne de graphiques
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("Répartition par segment")
+        st.subheader("Taux de clients prédits à haut risque par segment")
         
         # Graphique de répartition par segment (prédite)
-        active_clients_pred = active_clients[active_clients['Churn_Prediction'] == 0]
+        active_clients_pred = active_clients[active_clients['Churn_Probability'] > 0.7]
         segment_counts = active_clients_pred['Segment'].value_counts().reset_index()
         segment_counts.columns = ['Segment', 'Count']
         
@@ -65,55 +61,9 @@ def predictions_page(filtered_df):
 
         st.plotly_chart(fig, use_container_width=True)
 
+
+
     with col2:
-        st.subheader("Contribution churn par segment")
-        
-        # Graphique de contribution au churn par segment
-        churn_by_segment = active_clients.groupby('Segment')['Churn_Prediction'].sum().reset_index()
-        total_churn = churn_by_segment['Churn_Prediction'].sum()
-        churn_by_segment['Contribution'] = churn_by_segment['Churn_Prediction'] / total_churn
-        
-        churn_by_segment = churn_by_segment.sort_values(by='Contribution', ascending=False)
-    
-        
-        fig = px.bar(
-            churn_by_segment,
-            x='Segment',
-            y='Contribution',
-            color='Segment',
-            color_discrete_map={
-                'Élevé': 'green', 
-                'Moyen-Haut': 'blue',
-                'Moyen-Bas': 'orange', 
-                'Bas': 'red'
-            }
-        )
-        
-        # Labels des pourcentages en gras sur les barres
-        fig.update_traces(
-            texttemplate='<b>%{y:.1%}</b>', 
-            textposition='outside'
-        )
-        
-        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
-        fig.update_layout(
-            yaxis_tickformat='.0%',
-            showlegend=False,  # Suppression de la légende
-            xaxis=dict(
-                title=None,  # Suppression du nom de l'axe des abscisses
-                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
-            ),
-            yaxis=dict(
-                title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
-                showticklabels=False  # Suppression des graduations de l'axe des ordonnées
-            )
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-
-
-    with col3:
         st.subheader("Facteurs influents sur le churn")
         # Importances des variables (si disponible dans le modèle)
         try:

@@ -39,7 +39,7 @@ def home_page(filtered_df):
             segment_counts, 
             values='Count', 
             names='Segment',
-            title="Répartition par segment",
+            title="Répartition des clients par segment de dépense",
             color='Segment',
             color_discrete_map={
                 'Élevé': 'green', 
@@ -75,7 +75,7 @@ def home_page(filtered_df):
             churn_by_segment,
             x='Segment',
             y='Contribution',
-            title="Contribution churn par segment",
+            title="Répartition du churn par segment",
             color='Segment',
             color_discrete_map={
                 'Élevé': 'green', 

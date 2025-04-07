@@ -31,7 +31,7 @@ def recommendations_page(filtered_df):
     st.dataframe(clients_anciens[["Customer ID", "Customer tenure in month"]])
 
 
-    num_big_spenders = st.slider("Nombre de plus gros clients à afficher", 1, active_count, 5)
+    num_big_spenders = st.slider("Nombre de clients à forte valeur à afficher", 1, active_count, 5)
     st.subheader("Les plus gros clients (dépenses)")
     gros_clients = filtered_df.sort_values(by="Total Spend in Months 1 and 2 of 2017", ascending=False).head(num_big_spenders)
     st.dataframe(gros_clients[["Customer ID", "Total Spend in Months 1 and 2 of 2017"]])
