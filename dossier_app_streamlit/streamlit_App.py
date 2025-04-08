@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import joblib
 import page_predictions
 import page_recommandations
-import home_page
+import home_page, acceuil
 
 # Configuration de base
 st.set_page_config(
@@ -122,7 +122,7 @@ def main():
     """, unsafe_allow_html=True)
     
     # Création de la barre de navigation avec st.tabs
-    tabs = st.tabs(["📊 Accueil & KPIs", "🔮 Prédictions", "📋 Recommandations"])
+    tabs = st.tabs(["📊 Accueil & KPIs", "🔮 Prédictions", "📋 Recommandations", "Acceuil"])
     
     # Filtres 
     filtered_df = sidebar_filters(df)
@@ -136,6 +136,9 @@ def main():
     
     with tabs[2]:
         page_recommandations.recommendations_page(filtered_df)
+    
+    with tabs[3]:
+        acceuil.acceuil()
 
 if __name__ == "__main__":
     main()
