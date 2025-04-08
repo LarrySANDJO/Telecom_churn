@@ -7,6 +7,7 @@ import joblib
 import page_predictions
 import page_recommandations
 import home_page, acceuil
+from pipeline import *
 
 # Configuration de base
 st.set_page_config(
@@ -17,7 +18,7 @@ st.set_page_config(
 )
 
 # Chargement du modèle et du preprocesseur
-model = joblib.load('dossier_app_streamlit/churn_model.joblib')
+model = joblib.load('dossier_app_streamlit/churn_model.pkl')
 pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
 
 # Fonction de chargement des données
