@@ -258,15 +258,15 @@ def predictions_page(filtered_df):
             })
             
             # Appliquer le pipeline pour transformer les nouvelles données
-            #new_data_transformed = pipeline.transform(new_data)
+            # new_data_transformed = pipeline.transform(new_data)
 
             
             # Faire la prédiction
             # Transformer les données avec le pipeline
-            #new_data_transformed = pipeline.transform(new_data)
+            new_data_transformed = pipeline.transform(new_data)
 
             # Prédire avec le modèle
-            # prediction = model.predict(new_data_transformed)
+            prediction = model.predict(new_data_transformed)
             try:
                 # Prédiction de la probabilité
                 proba = model.predict_proba(new_data)[:, 1][0]
