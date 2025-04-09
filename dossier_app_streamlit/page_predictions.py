@@ -26,44 +26,120 @@ def predictions_page(filtered_df):
        
         
     # Deuxième ligne de graphiques
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.subheader("Taux de clients prédits à haut risque par segment")
-        
-        # Graphique de répartition par segment (prédite)
-        active_clients_pred = active_clients[active_clients['Churn_Probability'] > 0.7]
-        segment_counts = active_clients_pred['Segment'].value_counts().reset_index()
-        segment_counts.columns = ['Segment', 'Count']
-        
-        fig = px.pie(
-            segment_counts, 
-            values='Count', 
-            names='Segment',
+        # Affichage du titre
+        st.subheader("Répartition des clients à haut risque par segment")
+
+        # Filtrer les clients à haut risque
+        high_risk_clients = active_clients[active_clients['Churn_Probability'] > 0.7]
+
+        # Calculer la répartition des clients à haut risque par segment
+        high_risk_by_segment = high_risk_clients.groupby('Segment').size().reset_index(name='Count')
+
+        # Calculer la contribution de chaque segment
+        total_high_risk = high_risk_by_segment['Count'].sum()
+        high_risk_by_segment['Contribution'] = (high_risk_by_segment['Count'] / total_high_risk) * 100
+
+        # Trier les segments par contribution décroissante
+        high_risk_by_segment = high_risk_by_segment.sort_values(by='Contribution', ascending=False)
+
+        # Création du graphique
+        fig = px.bar(
+            high_risk_by_segment,
+            x='Segment',
+            y='Contribution',
+            title="Répartition des clients à haut risque par segment",
             color='Segment',
             color_discrete_map={
-                'Élevé': 'green', 
-                'Moyen-Haut': 'blue',
-                'Moyen-Bas': 'orange', 
+                'Élevé': 'green',
+                'Moyen-Sup': 'blue',
+                'Moyen-Inf': 'orange',
                 'Bas': 'red'
             }
         )
+
         
-        # Labels et pourcentages bien visibles à l'intérieur des secteurs
+        # Labels des pourcentages en gras sur les barres
         fig.update_traces(
-            textposition='inside', 
-            textinfo='percent+label',
-            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
+            texttemplate='<b>%{y:.1%}</b>', 
+            textposition='outside'
         )
         
-        # Suppression de la légende
-        fig.update_layout(showlegend=False)
+        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
+        fig.update_layout(
+            yaxis_tickformat='.0%',
+            showlegend=False,  # Suppression de la légende
+            xaxis=dict(
+                title=None,  # Suppression du nom de l'axe des abscisses
+                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
+            ),
+            yaxis=dict(
+                title='Pourcentage',
+                title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
+                showticklabels=False  # Suppression des graduations de l'axe des ordonnées
+            )
+        )
 
         st.plotly_chart(fig, use_container_width=True)
 
 
-
     with col2:
+        st.subheader("Taux de clients prédits à haut risque par segment")
+        
+        #  Nombre total de clients actifs par segment
+        segment_total = active_clients['Segment'].value_counts().reset_index()
+        segment_total.columns = ['Segment', 'Total']
+
+        # Nombre de clients à risque par segment (> 0.7)
+        active_clients_pred = active_clients[active_clients['Churn_Probability'] > 0.7]
+        segment_risk = active_clients_pred['Segment'].value_counts().reset_index()
+        segment_risk.columns = ['Segment', 'À_Risque']
+
+        # Fusionner les deux
+        merged = pd.merge(segment_total, segment_risk, on='Segment', how='left')
+        merged['À_Risque'] = merged['À_Risque'].fillna(0)
+
+        # Calcul du pourcentage de clients à risque dans chaque segment
+        merged['% à risque'] = (merged['À_Risque'] / merged['Total']) * 100
+        merged = merged.sort_values('% à risque', ascending=False)
+        
+        fig = px.bar(
+            merged,
+            x='Segment',
+            y='% à risque',
+            text=merged['% à risque'].apply(lambda x: f'{x:.1f}%'),
+            color='Segment',
+            color_discrete_map={
+                'Élevé': 'green',
+                'Moyen-Sup': 'blue',
+                'Moyen-Inf': 'orange',
+                'Bas': 'red'
+            }
+        )
+
+        fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
+        fig.update_layout(
+            yaxis_tickformat='.0%',
+            showlegend=False,  # Suppression de la légende
+            xaxis=dict(
+                title=None,  # Suppression du nom de l'axe des abscisses
+                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
+            ),
+            yaxis=dict(
+                title="Pourcentage", 
+                title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
+                showticklabels=False  # Suppression des graduations de l'axe des ordonnées
+            )
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+
+
+    with col3:
         st.subheader("Facteurs influents sur le churn")
         # Importances des variables (si disponible dans le modèle)
         try:
