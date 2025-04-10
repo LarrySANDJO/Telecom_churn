@@ -6,8 +6,8 @@ import plotly.graph_objects as go
 import joblib
 import page_predictions
 import page_recommandations
-import home_page, acceuil
-from pipeline import *
+import home_page
+
 
 # Configuration de base
 st.set_page_config(
@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # Chargement du modèle et du preprocesseur
-model = joblib.load('dossier_app_streamlit/churn_model.pkl')
+model = joblib.load('dossier_app_streamlit/churn_model.joblib')
 pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
 
 # Fonction de chargement des données
@@ -123,10 +123,13 @@ def main():
     """, unsafe_allow_html=True)
     
     # Création de la barre de navigation avec st.tabs
-    tabs = st.tabs(["📊 Accueil & KPIs", "🔮 Prédictions", "📋 Recommandations", "Acceuil"])
+    tabs = st.tabs(["📊 Accueil & KPIs", "🔮 Prédictions", "📋 Recommandations"])
     
     # Filtres 
     filtered_df = sidebar_filters(df)
+    
+    
+    
     
     # Affichage du contenu en fonction de l'onglet sélectionné
     with tabs[0]:
@@ -137,9 +140,6 @@ def main():
     
     with tabs[2]:
         page_recommandations.recommendations_page(filtered_df)
-    
-    with tabs[3]:
-        acceuil.acceuil()
 
 if __name__ == "__main__":
     main()

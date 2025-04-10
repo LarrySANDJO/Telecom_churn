@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
+
+pio.templates.default = "plotly_white"
 
 # Page 1: Accueil & KPIs
 def home_page(filtered_df):
@@ -23,9 +26,86 @@ def home_page(filtered_df):
         st.metric("Ancienneté Moyenne", f"{active_clients['Customer tenure in month'].mean():.1f} mois")
 
     with col4:
-        st.metric("Taux de plaintes", f"{active_clients['Total Call centre complaint calls'].mean():.1f}%")
+        st.metric("Nombre et taux de plaintes", f"{(filtered_df['Total Call centre complaint calls']).sum()}({active_clients['Total Call centre complaint calls'].mean():.1f}%")
     
-   
+    
+    # Les styles communs pour les graphiques en barres
+    def style_plotly_figure(fig, title_text, yaxis_title_text, xaxis_title_text=''):
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                font=dict(size=20, family='Arial Black', color='black', weight='bold')
+            ),
+            xaxis=dict(
+                title=xaxis_title_text,
+                title_font=dict(
+                    size=16,
+                    family='Arial',
+                    color='black',
+                    weight='bold'
+                ),
+                tickfont=dict(
+                    family="Arial Black",
+                    size=12,
+                    color='black'
+                )
+            ),
+            yaxis=dict(
+                title=yaxis_title_text,
+                title_font=dict(
+                    size=16,
+                    family='Arial',
+                    color='black',
+                    weight='bold'
+                ),
+                showticklabels=False,  # Pas de chiffres sur l’axe Y
+                showgrid=False
+            ),
+            font=dict(
+                family="Arial Black",
+                size=12,
+                color='black'
+            ),
+            showlegend=False
+        )
+
+        fig.update_traces(
+            texttemplate='<b>%{text:.1f}%</b>',
+            textposition='outside',
+            textfont=dict(
+                family='Arial, sans-serif',
+                size=12,
+                color='black'
+            )
+        )
+        return fig
+
+    
+    # Style commun aux secteurs
+    def style_pie_chart(fig, title_text):
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                font=dict(size=20, family='Arial Black', color='black', weight='bold')
+            ),
+            font=dict(
+                family="Arial Black",
+                size=12,
+                color='black'
+            ),
+            showlegend=False  # Suppression de la légende
+        )
+        
+        # Personnalisation des étiquettes et pourcentages dans les secteurs
+        fig.update_traces(
+            textposition='inside',
+            textinfo='percent+label',
+            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
+        )
+        
+        return fig
+
+    
      # Deuxième ligne de graphiques
     col1, col2, col3 = st.columns(3)
     
@@ -35,38 +115,30 @@ def home_page(filtered_df):
         segment_counts = active_clients['Segment'].value_counts().reset_index()
         segment_counts.columns = ['Segment', 'Count']
         
+        # Créer le graphique en secteurs
         fig = px.pie(
             segment_counts, 
             values='Count', 
             names='Segment',
-            title="Répartition des clients par segment de dépense",
-            color='Segment',
-            color_discrete_map={
-                'Élevé': 'green', 
-                'Moyen-Haut': 'blue',
-                'Moyen-Bas': 'orange', 
-                'Bas': 'red'
-            }
+            color='Segment'  # Utilise 'Segment' comme base de couleur
         )
-        
-        # Labels et pourcentages bien visibles à l'intérieur des secteurs
-        fig.update_traces(
-            textposition='inside', 
-            textinfo='percent+label',
-            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
-        )
-        
-        # Suppression de la légende
-        fig.update_layout(showlegend=False)
 
+        # Appliquer la mise en forme avec la fonction de style
+        fig = style_pie_chart(
+            fig,
+            title_text="Répartition des clients par segment de dépense"
+        )
+
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
+
 
     with col2:
         
-        # Graphique de contribution au churn par segment
+        # Graphique de repartition au churn par segment
         churn_by_segment = filtered_df.groupby('Segment')['Churn Status'].sum().reset_index()
         total_churn = churn_by_segment['Churn Status'].sum()
-        churn_by_segment['Contribution'] = churn_by_segment['Churn Status'] / total_churn
+        churn_by_segment['Contribution'] = churn_by_segment['Churn Status'] / total_churn*100
         
         churn_by_segment = churn_by_segment.sort_values(by='Contribution', ascending=False)
     
@@ -75,37 +147,19 @@ def home_page(filtered_df):
             churn_by_segment,
             x='Segment',
             y='Contribution',
-            title="Répartition du churn par segment",
-            color='Segment',
-            color_discrete_map={
-                'Élevé': 'green', 
-                'Moyen-Haut': 'blue',
-                'Moyen-Bas': 'orange', 
-                'Bas': 'red'
-            }
+            text='Contribution',
+            color='Segment'
         )
-        
-        # Labels des pourcentages en gras sur les barres
-        fig.update_traces(
-            texttemplate='<b>%{y:.1%}</b>', 
-            textposition='outside'
-        )
-        
-        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
-        fig.update_layout(
-            yaxis_tickformat='.0%',
-            showlegend=False,  # Suppression de la légende
-            xaxis=dict(
-                title=None,  # Suppression du nom de l'axe des abscisses
-                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
-            ),
-            yaxis=dict(
-                title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
-                showticklabels=False  # Suppression des graduations de l'axe des ordonnées
-            )
+
+        fig = style_plotly_figure(
+            fig,
+            title_text="Répartition du churn par segment",
+            yaxis_title_text="Pourcentage",
+            xaxis_title_text="segment de dépense"
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
 
 
     
@@ -115,47 +169,29 @@ def home_page(filtered_df):
         churn_by_segment = filtered_df.groupby('Segment')['Churn Status'].mean().reset_index()
         churn_by_segment = churn_by_segment.sort_values(by='Churn Status', ascending=False)
     
-        # Créer un graphique à barres avec des couleurs distinctes pour chaque segment
+        # Créer le graphique à barres
         churn_chart = px.bar(
             churn_by_segment,
             x='Segment',
             y='Churn Status',
-            title="Churn par Segment",
-            color='Segment',
-            color_discrete_map={
-                'Élevé': 'green', 
-                'Moyen-Haut': 'blue',
-                'Moyen-Bas': 'orange', 
-                'Bas': 'red'
-            }
+            text='Churn Status', 
+            color='Segment'
         )
-        
-        # Labels des pourcentages en gras sur les barres
-        churn_chart.update_traces(
-            texttemplate='<b>%{y:.1%}</b>', 
-            textposition='outside'
+
+        # Appliquer la mise en forme avec ta fonction personnalisée
+        churn_chart = style_plotly_figure(
+            churn_chart,
+            title_text="Taux de churn par Segment",
+            yaxis_title_text="Pourcentage",
+            xaxis_title_text="segment de dépense"
         )
-        
-        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
-        churn_chart.update_layout(
-            yaxis_tickformat='.0%',
-            showlegend=False,  # Suppression de la légende
-            xaxis=dict(
-                title=None,  # Suppression du nom de l'axe des abscisses
-                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
-                ),
-            yaxis=dict(
-                title_font=dict(size=16, family='Arial', weight='bold'), # Nom de l'axe en gras
-                showticklabels=False 
-            )
-        )
-    
-        # Afficher le graphique
+
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(churn_chart, use_container_width=True)
+
         
         
-        
-    # Quatrième ligne de graphiques
+    # Troisième ligne de graphiques
     col1, col2, col3 = st.columns(3)
 
     with col1:
@@ -187,27 +223,22 @@ def home_page(filtered_df):
         }
 
         #  PIE CHART (DÉPENSES PAR SERVICE)
-        fig_service = px.pie(
+        fig = px.pie(
             service_df, 
-            names="Service", 
             values="Pourcentage", 
-            title="Répartition des dépenses par service",
-            color="Service",
-            color_discrete_map=color_map
+            names="Service",
+            color="Service" 
         )
 
-        # Personnalisation des labels
-        fig_service.update_traces(
-            textinfo="label+percent",  # Afficher labels et % sur les secteurs
-            texttemplate="<b>%{label} : %{percent:.1%}</b>",  
-            insidetextfont=dict(size=14)  
+        # Appliquer la mise en forme avec la fonction de style
+        fig = style_pie_chart(
+            fig,
+            title_text="Répartition des dépenses par service"
         )
 
-        # Supprimer la légende
-        fig_service.update_layout(showlegend=False)
-        
-        st.plotly_chart(fig_service, use_container_width=True)
-    
+        # Afficher le graphique dans Streamlit
+        st.plotly_chart(fig, use_container_width=True)
+
     with col2:
 
         # Somme des dépenses par segment, triées dans l'ordre décroissant
@@ -218,41 +249,39 @@ def home_page(filtered_df):
         segment_spend["Pourcentage"] = (segment_spend["Total Spend"] / segment_spend["Total Spend"].sum()) * 100
 
         # Création du graphique en barres
+        # Créer le graphique à barres
         fig_segment = px.bar(
             segment_spend, 
             x="Segment", 
             y="Pourcentage", 
-            title="Dépenses totales par segment",
-            text_auto=".1f",  # Affichage des valeurs au-dessus des barres
-            color_discrete_sequence=["#1f77b4"]  # Une seule couleur pour toutes les barres
+            text="Pourcentage",
+            color='Segment'  # Utilise 'Segment' comme base de couleur
         )
 
-        # Personnalisation
-        fig_segment.update_traces(
-            texttemplate="<b>%{y:.2f}%</b>",  # Affichage des pourcentages en gras
-            textposition="outside"
+        # Appliquer la mise en forme avec ta fonction personnalisée
+        fig_segment = style_plotly_figure(
+            fig_segment,
+            title_text="Répartition des dépenses totales par segment",
+            yaxis_title_text="<b>Pourcentage des dépenses</b>",
+            xaxis_title_text="segment de dépense"
         )
 
-        fig_segment.update_layout(
-            xaxis=dict(
-                title=None,  
-                tickfont=dict(size=14, family="Arial Black")  
-                ),
-            yaxis=dict(
-                showticklabels=False , 
-                title_font=dict(size=16, family="Arial", weight="bold")  
-            )
-        )
-        
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig_segment, use_container_width=True)
 
     with col3:
+        # Filtrer les clients dont le réseau concurrent préféré est resté le même entre les mois 1 et 2
+        same_competitor = filtered_df[
+            filtered_df['Most Loved Competitor network in in Month 1'] == 
+            filtered_df['Most Loved Competitor network in in Month 2']
+        ]
 
-        # Calculer les pourcentages
-        competitor_dist = filtered_df['Most Loved Competitor network in in Month 2'].value_counts(normalize=True).reset_index()
+        # Calcul de la distribution des réseaux concurrents
+        competitor_dist = same_competitor['Most Loved Competitor network in in Month 2'].value_counts(normalize=True).reset_index()
         competitor_dist.columns = ['Réseau concurrent', 'Pourcentage']
         competitor_dist['Pourcentage'] = competitor_dist['Pourcentage'] * 100
 
+        
         # Trier par pourcentage décroissant
         competitor_dist = competitor_dist.sort_values('Pourcentage', ascending=False)
 
@@ -262,45 +291,18 @@ def home_page(filtered_df):
             x='Réseau concurrent',
             y='Pourcentage',
             text='Pourcentage',
-            title='<b>Répartition par réseau concurrent préféré </b>'
+            title=''  # On laisse vide ici car on le gère dans la fonction
         )
 
-        # Personnaliser le graphique
-        fig4.update_layout(
-            xaxis_title='',  # Supprimer le nom de l'axe des abscisses
-            yaxis_title='<b>Pourcentage de clients</b>',  # Nom de l'axe des ordonnées en gras
-            font=dict(
-                family="Arial, sans-serif",
-                size=12
-            ),
-            # Supprimer les marques de graduation et chiffres sur l'axe des y
-            yaxis=dict(
-                showticklabels=False,
-                showgrid=False
-            ),
-            # Mettre en gras les étiquettes de l'axe x
-            xaxis=dict(
-                tickfont=dict(
-                    family="Arial Black",
-                    size=12,
-                    color='black',
-                )
-            )
+        fig4 = style_plotly_figure(
+            fig4,
+            title_text='<b>Répartition par réseaux concurrents les plus préférés</b>',
+            yaxis_title_text='<b>Pourcentage de clients</b>',
+            xaxis_title_text="Réseaux concurrents"
         )
 
-        # Mettre en forme les étiquettes de pourcentage au-dessus des barres
-        fig4.update_traces(
-            texttemplate='<b>%{text:.1f}%</b>',  # Format avec une décimale et en gras
-            textposition='outside',  # Position au-dessus de la barre
-            textfont=dict(
-                family='Arial, sans-serif',
-                size=12,
-                color='black'
-            )
-        )
-
-        # Afficher le graphique
         st.plotly_chart(fig4, use_container_width=True)
+
         
         
         
@@ -383,26 +385,21 @@ def home_page(filtered_df):
             color='Status',
             barmode='group',
             text='Percentage',
-            color_discrete_map={'Churn': 'red', 'Non-Churn': 'green'},
-            category_orders={'Complaint_Category': sorted_categories},
-            title='churn par niveau de plaintes'
+            category_orders={'Complaint_Category': sorted_categories}
         )
 
         # Personnalisation du graphique
+        # Appliquer la mise en forme avec ta fonction personnalisée
+        fig = style_plotly_figure(
+            fig,
+            title_text="Taux de churn par niveau de plainte",
+            yaxis_title_text="Pourcentage",
+            xaxis_title_text="niveau de plainte"
+        )
+
         fig.update_layout(
-            xaxis_title='Niveau de plaintes',
-            yaxis_title='Pourcentage',
+            showlegend=True,
             legend_title='',
-            xaxis=dict(  
-                tickfont=dict(size=12, 
-                    color='black', 
-                    family="Arial Black"),
-                title_font=dict(size=16, family="Arial", weight="bold")    
-                ),
-            yaxis=dict(
-                showticklabels=False , 
-                title_font=dict(size=16, family="Arial", weight="bold")  
-            ),
             legend=dict(
                 orientation='h',
                 yanchor='bottom',
@@ -411,16 +408,10 @@ def home_page(filtered_df):
                 x=1
             )
         )
-
-        # Afficher les pourcentages au-dessus des barres
-        fig.update_traces(
-            texttemplate='<b>%{text:.2f}%</b>',
-            textposition='outside'
-        )
-
-        # Afficher le graphique
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
-    
+
+        
     with col2:
     
         def categorize_tenure(months):
@@ -493,26 +484,22 @@ def home_page(filtered_df):
             color='Status',
             barmode='group',
             text='Percentage',
-            color_discrete_map={'Churn': 'red', 'Non-Churn': 'green'},
             category_orders={'Tenure_Category': sorted_categories},
-            title='Churn par niveau d\'ancienneté'
         )
+        
+        
 
         # Personnalisation du graphique
+        fig = style_plotly_figure(
+            fig,
+            title_text="Taux de Churn par niveau d\'ancienneté",
+            yaxis_title_text="Pourcentage",
+            xaxis_title_text="niveau d\'ancienneté"
+        )
+
         fig.update_layout(
-            xaxis_title='Etat d\'ancienneté',
-            yaxis_title='Pourcentage',
+            showlegend=True,
             legend_title='',
-            xaxis=dict(  
-                tickfont=dict(size=12, 
-                    color='black', 
-                    family="Arial Black"),
-                title_font=dict(size=16, family="Arial", weight="bold")     
-                ),
-            yaxis=dict(
-                showticklabels=False , 
-                title_font=dict(size=16, family="Arial", weight="bold")  
-            ),
             legend=dict(
                 orientation='h',
                 yanchor='bottom',
@@ -521,20 +508,19 @@ def home_page(filtered_df):
                 x=1
             )
         )
-
-        # Afficher les pourcentages au-dessus des barres
-        fig.update_traces(
-            texttemplate='<b>%{text:.2f}%</b>',
-            textposition='outside'
-        )
-
-        # Afficher le graphique
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
         
     with col3:
         
         # Créer un dataframe qui croise Churn Status et Most Loved Competitor
-        churn_competitor_df = filtered_df.groupby(['Churn Status', 'Most Loved Competitor network in in Month 2']).size().reset_index()
+        
+        same_competitor = filtered_df[
+            filtered_df['Most Loved Competitor network in in Month 1'] == 
+            filtered_df['Most Loved Competitor network in in Month 2']
+        ]
+        
+        churn_competitor_df = same_competitor.groupby(['Churn Status', 'Most Loved Competitor network in in Month 2']).size().reset_index()
         churn_competitor_df.columns = ['Churn Status', 'Réseau concurrent', 'Count']
 
         # Calculer les pourcentages pour chaque statut de churn
@@ -555,32 +541,20 @@ def home_page(filtered_df):
             color='Réseau concurrent',
             text='Pourcentage',
             barmode='stack',
-            title='<b>Répartition des réseaux concurrents préférés par statut de churn</b>'
         )
 
-        # Personnaliser le graphique
+        
+        # Personnalisation du graphique
+        fig = style_plotly_figure(
+            fig,
+            title_text="concurrents préférés par statut de churn",
+            yaxis_title_text="Pourcentage",
+            xaxis_title_text="statut de churn"
+        )
+
         fig.update_layout(
-            xaxis_title='<b>Statut</b>',
-            yaxis_title='<b>Pourcentage (%)</b>',
-            font=dict(
-                family="Arial, sans-serif",
-                size=12
-            ),
-            # Supprimer les chiffres sur l'axe des y
-            yaxis=dict(
-                showticklabels=False,
-                showgrid=False
-            ),
-            # Mettre en gras les étiquettes de l'axe x
-            xaxis=dict(
-                tickfont=dict(
-                    family='Arial Black',
-                    size=12,
-                    color='black'
-                )
-            ),
-            legend_title_text='',
-            # Position de la légende
+            showlegend=True,
+            legend_title='',
             legend=dict(
                 orientation='h',
                 yanchor='bottom',
@@ -589,20 +563,10 @@ def home_page(filtered_df):
                 x=1
             )
         )
-
-        # Mettre en forme les étiquettes de pourcentage sur les barres
-        fig.update_traces(
-            texttemplate='<b>%{text:.1f}%</b>',
-            textposition='inside',
-            textfont=dict(
-                family='Arial, sans-serif',
-                size=11,
-                color='white'
-            )
-        )
-
-        # Afficher le graphique
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
+        
+        
         
     with col4:
         #  Classement des réseaux par ordre de rentabilité
@@ -621,37 +585,106 @@ def home_page(filtered_df):
             network_revenue,
             x='Network type subscription in Month 2',
             y='Pourcentage',
-            text='Pourcentage',
-            title='<b>Répartition des dépenses par type de réseau (Mois 2)</b>'
+            text='Pourcentage'
         )
 
         # Personnaliser le graphique
-        fig5.update_layout(
-            xaxis_title='<b>Type de réseau</b>',
-            yaxis_title='<b>Pourcentage de la dépense totale (%)</b>',
-            font=dict(
-                family="Arial, sans-serif",
-                size=12
-            ),
-            # Supprimer les chiffres sur l'axe des y
-            yaxis=dict(
-                showticklabels=False,
-                showgrid=False
-            ),
-            # Mettre en gras les étiquettes de l'axe x
-            xaxis=dict(
-                tickfont=dict(
-                    family='Arial Black',
-                    size=12,
-                    color='black'
-                )
-            )
+        # Personnalisation du graphique
+        fig5 = style_plotly_figure(
+            fig5,
+            title_text="Répartition des dépenses par type de réseau (Mois 2)",
+            yaxis_title_text="Pourcentage",
+            xaxis_title_text="Type de réseau"
         )
 
-        # Mettre en forme les étiquettes de pourcentage au-dessus des barres
-        fig5.update_traces(
-            texttemplate='<b>%{text:.1f}%</b>',  # Format avec une décimale et en gras
-            textposition='outside',  # Position au-dessus de la barre
+        # Afficher le graphique
+        st.plotly_chart(fig5, use_container_width=True)
+    
+    
+    
+        
+    # Calcul du ratio avec +1 pour éviter division par zéro
+    filtered_df['Ratio Offnet/Onnet'] = (
+        (filtered_df['Total Offnet spend'] + 1) / (filtered_df['Total Onnet spend'] + 1)
+    )
+
+    
+    col1, col2 = st.columns(2)
+
+    # Histogramme du ratio Offnet/Onnet
+    with col1:
+        st.subheader("Histogramme du ratio Offnet / Onnet")
+        
+        # Créer une colonne de catégories
+        def categorize_ratio(r):
+            if r < 1:
+                return "Offnet < Onnet"
+            elif r <= 3:
+                return "Offnet ≈ Onnet à 3x"
+            else:
+                return "Offnet > 3x Onnet"
+
+        filtered_df['Ratio Category'] = filtered_df['Ratio Offnet/Onnet'].apply(categorize_ratio)
+                
+        ratio_counts = filtered_df['Ratio Category'].value_counts().reset_index()
+        ratio_counts.columns = ['Ratio Category', 'Count']
+        ratio_counts['Percentage'] = 100 * ratio_counts['Count'] / ratio_counts['Count'].sum()
+
+        fig_ratio = px.pie(
+            ratio_counts,
+            names='Ratio Category',
+            values='Count',
+            hole=0.5,  # donut style
+            color_discrete_sequence=px.colors.qualitative.Pastel
+        )
+
+        fig_ratio.update_traces(
+            textposition='inside',
+            textinfo='percent+label',
+            textfont=dict(size=14, family='Arial Black'),
+            pull=[0.05, 0.02, 0.08]  # léger effet d'explosion
+        )
+
+        fig_ratio.update_layout(
+            title_text="Répartition des utilisateurs selon le ratio Offnet/Onnet",
+            title_font=dict(size=20, family='Arial Black'),
+            showlegend=False
+        )
+
+        st.plotly_chart(fig_ratio, use_container_width=True)
+        
+        
+    #  Diagramme en barres du ratio moyen par segment
+    with col2:
+        st.subheader("Ratio moyen par segment")
+        mean_ratio = filtered_df.groupby('Segment')['Ratio Offnet/Onnet'].mean().reset_index()
+        mean_ratio.columns = ['Segment', 'Ratio moyen']
+
+        # Arrondir et formater le texte sans le %
+        mean_ratio['Ratio moyen'] = mean_ratio['Ratio moyen'].round(2)
+        mean_ratio = mean_ratio.sort_values('Ratio moyen', ascending=False)
+        mean_ratio['text_label'] = mean_ratio['Ratio moyen'].astype(str)
+
+        fig_bar = px.bar(
+            mean_ratio,
+            x='Segment',
+            y='Ratio moyen',
+            text='text_label',  # on affiche ce texte sans le %
+            color='Segment',
+            color_discrete_sequence=px.colors.qualitative.Pastel
+        )
+
+
+        fig_bar = style_plotly_figure(
+            fig_bar,
+            title_text="Ratio moyen Offnet/Onnet par segment",
+            yaxis_title_text="Ratio moyen",
+            xaxis_title_text="Segment"
+        )
+        
+        fig_bar.update_traces(
+            texttemplate='<b>%{text}</b>',  # Sans le %
+            textposition='outside',
             textfont=dict(
                 family='Arial, sans-serif',
                 size=12,
@@ -659,5 +692,4 @@ def home_page(filtered_df):
             )
         )
 
-        # Afficher le graphique
-        st.plotly_chart(fig5, use_container_width=True)
+        st.plotly_chart(fig_bar, use_container_width=True)

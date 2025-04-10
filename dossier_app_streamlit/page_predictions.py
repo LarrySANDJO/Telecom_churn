@@ -4,6 +4,9 @@ import numpy as np
 import plotly.express as px
 import joblib
 import plotly.graph_objects as go
+import plotly.io as pio
+
+pio.templates.default = "plotly_white"
 
 def predictions_page(filtered_df):
     st.title("🔮 prédictions de churn")
@@ -28,9 +31,103 @@ def predictions_page(filtered_df):
     # Deuxième ligne de graphiques
     col1, col2, col3 = st.columns(3)
     
+    
+    # Les styles communs pour les graphiques en barres
+    def style_plotly_figure(fig, title_text, yaxis_title_text, xaxis_title_text=''):
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                font=dict(size=20, family='Arial Black', color='black', weight='bold')
+            ),
+            xaxis=dict(
+                title=xaxis_title_text,
+                title_font=dict(
+                    size=16,
+                    family='Arial',
+                    color='black',
+                    weight='bold'
+                ),
+                tickfont=dict(
+                    family="Arial Black",
+                    size=12,
+                    color='black'
+                )
+            ),
+            yaxis=dict(
+                title=yaxis_title_text,
+                title_font=dict(
+                    size=16,
+                    family='Arial',
+                    color='black',
+                    weight='bold'
+                ),
+                showticklabels=False,  # Pas de chiffres sur l’axe Y
+                showgrid=False
+            ),
+            font=dict(
+                family="Arial Black",
+                size=12,
+                color='black'
+            ),
+            showlegend=False
+        )
+
+        fig.update_traces(
+            texttemplate='<b>%{text:.1f}%</b>',
+            textposition='outside',
+            textfont=dict(
+                family='Arial, sans-serif',
+                size=12,
+                color='black'
+            )
+        )
+        return fig
+
+    
+    # Style commun aux secteurs
+    def style_pie_chart(fig, title_text):
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                font=dict(size=20, family='Arial Black', color='black', weight='bold')
+            ),
+            font=dict(
+                family="Arial Black",
+                size=12,
+                color='black'
+            ),
+            showlegend=False  # Suppression de la légende
+        )
+        
+        # Personnalisation des étiquettes et pourcentages dans les secteurs
+        fig.update_traces(
+            textposition='inside',
+            textinfo='percent+label',
+            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
+        )
+        
+        return fig
+    
+    
+    def display_stylized_title(title_text, background="#2a9d8f", color="white"):
+        st.markdown(f"""
+        <div style='
+            background-color: {background};
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: {color};
+            font-family: Arial Black;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        '>
+            {title_text}
+        </div>
+        """, unsafe_allow_html=True)
+
     with col1:
         # Affichage du titre
-        st.subheader("Répartition des clients à haut risque par segment")
+        display_stylized_title("Répartition du churn par segment")
 
         # Filtrer les clients à haut risque
         high_risk_clients = active_clients[active_clients['Churn_Probability'] > 0.7]
@@ -40,7 +137,7 @@ def predictions_page(filtered_df):
 
         # Calculer la contribution de chaque segment
         total_high_risk = high_risk_by_segment['Count'].sum()
-        high_risk_by_segment['Contribution'] = (high_risk_by_segment['Count'] / total_high_risk) * 100
+        high_risk_by_segment['Contribution'] = (high_risk_by_segment['Count'] / total_high_risk)*100
 
         # Trier les segments par contribution décroissante
         high_risk_by_segment = high_risk_by_segment.sort_values(by='Contribution', ascending=False)
@@ -50,43 +147,24 @@ def predictions_page(filtered_df):
             high_risk_by_segment,
             x='Segment',
             y='Contribution',
-            title="Répartition des clients à haut risque par segment",
-            color='Segment',
-            color_discrete_map={
-                'Élevé': 'green',
-                'Moyen-Sup': 'blue',
-                'Moyen-Inf': 'orange',
-                'Bas': 'red'
-            }
+            text= 'Contribution',
+            color='Segment'
         )
 
-        
-        # Labels des pourcentages en gras sur les barres
-        fig.update_traces(
-            texttemplate='<b>%{y:.1%}</b>', 
-            textposition='outside'
-        )
-        
-        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
-        fig.update_layout(
-            yaxis_tickformat='.0%',
-            showlegend=False,  # Suppression de la légende
-            xaxis=dict(
-                title=None,  # Suppression du nom de l'axe des abscisses
-                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
-            ),
-            yaxis=dict(
-                title='Pourcentage',
-                title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
-                showticklabels=False  # Suppression des graduations de l'axe des ordonnées
-            )
+        # Appliquer la fonction de mise en forme
+        fig = style_plotly_figure(
+            fig, 
+            title_text="", 
+            yaxis_title_text="Pourcentage", 
+            xaxis_title_text="segment de dépense"
         )
 
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
 
 
     with col2:
-        st.subheader("Taux de clients prédits à haut risque par segment")
+        display_stylized_title("Taux de clients prédits à haut risque par segment")
         
         #  Nombre total de clients actifs par segment
         segment_total = active_clients['Segment'].value_counts().reset_index()
@@ -109,38 +187,26 @@ def predictions_page(filtered_df):
             merged,
             x='Segment',
             y='% à risque',
-            text=merged['% à risque'].apply(lambda x: f'{x:.1f}%'),
-            color='Segment',
-            color_discrete_map={
-                'Élevé': 'green',
-                'Moyen-Sup': 'blue',
-                'Moyen-Inf': 'orange',
-                'Bas': 'red'
-            }
+            text='% à risque',
+            color='Segment'
         )
 
-        fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-        # Supprimer la légende, le nom de l'axe des abscisses et les graduations sur l'axe des ordonnées
-        fig.update_layout(
-            yaxis_tickformat='.0%',
-            showlegend=False,  # Suppression de la légende
-            xaxis=dict(
-                title=None,  # Suppression du nom de l'axe des abscisses
-                tickfont=dict(size=14, family="Arial Black")  # Mettre les modalités en gras
-            ),
-            yaxis=dict(
-                title="Pourcentage", 
-                title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
-                showticklabels=False  # Suppression des graduations de l'axe des ordonnées
-            )
+        # Appliquer la fonction de mise en forme
+        fig = style_plotly_figure(
+            fig, 
+            title_text="", 
+            yaxis_title_text="Pourcentage", 
+            xaxis_title_text="segment de dépense"
         )
-        
+
+        # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
 
 
 
     with col3:
-        st.subheader("Facteurs influents sur le churn")
+        display_stylized_title("Facteurs influents sur le churn")
+        
         # Importances des variables (si disponible dans le modèle)
         try:
             # Récupérer les importances des features si disponibles
@@ -184,14 +250,14 @@ def predictions_page(filtered_df):
                 # Mise en forme du graphique
                 fig.update_layout(
                     xaxis=dict(
-                        title_font=dict(size=16, family='Arial', weight='bold'),  # Nom de l'axe en gras
+                        title_font=dict(size=16, family='Arial Black', color='black', weight='bold'),  # Nom de l'axe en gras
                         showticklabels=False  # Enlever les graduations sur l'axe des abscisses
                     ),
                     yaxis=dict(
                         title=None, 
-                        tickfont=dict(size=14, family="Arial", weight="bold")  # Mettre les modalités en gras sur l'axe des ordonnées
+                        tickfont=dict(size=14, family="Arial Black",  color='black', weight="bold")  # Mettre les modalités en gras sur l'axe des ordonnées
                     ),
-                    showlegend=False  # Enlever la légende
+                    showlegend=False  
                 )
 
                 st.plotly_chart(fig, use_container_width=True)
@@ -202,7 +268,8 @@ def predictions_page(filtered_df):
 
     
     # Section de prédiction (pleine largeur)
-    st.header("Prédictions")
+    display_stylized_title("Prédictions")
+        
     
     # Section des variables à entrer
     with st.expander("Veuillez saisir les données", expanded=True):

@@ -31,7 +31,39 @@ def recommendations_page(filtered_df):
     st.dataframe(clients_anciens[["Customer ID", "Customer tenure in month"]])
 
 
+    num_young_clients = st.slider("Nombre de clients les plus récents à afficher", 1, active_count, 5)   
+    st.subheader("Clients les plus récents")
+    clients_jeunes = filtered_df.sort_values(by="Customer tenure in month", ascending=True).head(num_old_clients)
+    st.dataframe(clients_jeunes[["Customer ID", "Customer tenure in month"]])
+
+
+
     num_big_spenders = st.slider("Nombre de clients à forte valeur à afficher", 1, active_count, 5)
-    st.subheader("Les plus gros clients (dépenses)")
+    st.subheader("Les clients à forte")
     gros_clients = filtered_df.sort_values(by="Total Spend in Months 1 and 2 of 2017", ascending=False).head(num_big_spenders)
     st.dataframe(gros_clients[["Customer ID", "Total Spend in Months 1 and 2 of 2017"]])
+    
+    
+    num_big_spenders = st.slider("Nombre de clients à faible valeur à afficher", 1, active_count, 5)
+    st.subheader("Les clients à plus faible valeur")
+    faiVal_clients = filtered_df.sort_values(by="Total Spend in Months 1 and 2 of 2017", ascending=True).head(num_big_spenders)
+    st.dataframe(faiVal_clients[["Customer ID", "Total Spend in Months 1 and 2 of 2017"]])
+    
+    
+    # Créer la variable "ratio Offnet/Onnet"
+    filtered_df['ratio_offnet_onnet'] = filtered_df['Total Offnet spend'] / filtered_df['Total Onnet spend'].replace(0, 1)
+
+    # Clients avec un ratio Offnet/Onnet > 3 (triés par ordre décroissant)
+    num_high_ratio_clients = st.slider("Nombre de clients avec un ratio Offnet/Onnet > 3", 1, active_count, 5)
+    st.subheader("Clients avec un ratio Offnet/Onnet > 3")
+    high_ratio_clients = filtered_df[filtered_df['ratio_offnet_onnet'] > 3]
+    high_ratio_clients = high_ratio_clients.sort_values(by="ratio_offnet_onnet", ascending=False)
+    st.dataframe(high_ratio_clients[["Customer ID", "Total Offnet spend", "Total Onnet spend", "ratio_offnet_onnet"]])
+
+    
+    # Clients avec un ratio Offnet/Onnet < 1 (triés par ordre croissant)
+    num_low_ratio_clients = st.slider("Nombre de clients avec un ratio Offnet/Onnet < 1", 1, active_count, 5)
+    st.subheader("Clients avec un ratio Offnet/Onnet < 1")
+    low_ratio_clients = filtered_df[filtered_df['ratio_offnet_onnet'] < 1]
+    low_ratio_clients = low_ratio_clients.sort_values(by="ratio_offnet_onnet", ascending=True)
+    st.dataframe(low_ratio_clients[["Customer ID", "Total Offnet spend", "Total Onnet spend", "ratio_offnet_onnet"]])
