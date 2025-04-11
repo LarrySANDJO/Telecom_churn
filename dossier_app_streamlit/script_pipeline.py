@@ -121,8 +121,8 @@ class CreateAdditionalFeatures(BaseEstimator, TransformerMixin):
 
         # 1. Consistent competitor
         X['Consistent_competitor'] = (
-            X['Most Loved Competitor network in in Month 1'] == 
-            X['Most Loved Competitor network in in Month 2']
+            X['Most Loved Competitor network in in Month 1'].astype(str) == 
+            X['Most Loved Competitor network in in Month 2'].astype(str)
         ).astype(int)
 
         # 2. Network Upgrade
@@ -184,6 +184,18 @@ class ScaleQuantVars(BaseEstimator, TransformerMixin):
         X = X.copy()
         X[self.columns] = self.scaler.transform(X[self.columns])
         return X
+    
+class ColumnSorter(BaseEstimator, TransformerMixin):
+    def __init__(self, columns_order=None):
+        self.columns_order = columns_order
+
+    def fit(self, X, y=None):
+        self.columns_order = X.columns.tolist()
+        return self
+
+    def transform(self, X):
+        return X[self.columns_order]
+
 
 
 
@@ -194,7 +206,8 @@ class FullPreprocessingPipeline(BaseEstimator, TransformerMixin):
     def __init__(self):
         self.cat_pipeline = Pipeline([
             ('imputer', CustomCategoricalImputer()),
-            ('freq_encoder', FrequencyEncoder())
+            ('freq_encoder', FrequencyEncoder()),
+            ("sort_columns", ColumnSorter())
         ])
         self.quant_pipeline = Pipeline([
             ('imputer', ImputeByIQR()),
@@ -212,11 +225,11 @@ class FullPreprocessingPipeline(BaseEstimator, TransformerMixin):
     def transform(self, X):
         X = self.quant_pipeline.transform(X.copy())
         X_cat = self.cat_pipeline.transform(X[cat_features])
-        X[cat_features] = X_cat
+        X[cat_features] = X_cat.astype(float)
         return X
 
 # ------------------------------
 # Utilisation
 # ------------------------------
-pipeline = FullPreprocessingPipeline()
+# pipeline = FullPreprocessingPipeline()
 # df_final = pipeline.fit_transform(df1)

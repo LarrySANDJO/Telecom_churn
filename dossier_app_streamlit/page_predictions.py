@@ -5,6 +5,7 @@ import plotly.express as px
 import joblib
 import plotly.graph_objects as go
 import plotly.io as pio
+from script_pipeline import *
 
 pio.templates.default = "plotly_white"
 
@@ -383,6 +384,15 @@ def predictions_page(filtered_df):
         # Bouton pour déclencher la prédiction
         if st.button("Prédire le risque de churn", use_container_width=True):
             # Préparation des données pour la prédiction
+            # Liste des colonnes catégorielles
+            cat_cols = [
+                'Network type subscription in Month 1',
+                'Network type subscription in Month 2',
+                'Most Loved Competitor network in in Month 1',
+                'Most Loved Competitor network in in Month 2'
+            ]
+
+            # Création du DataFrame
             new_data = pd.DataFrame({
                 'network_age': [network_age],
                 'Customer tenure in month': [tenure],
@@ -399,9 +409,19 @@ def predictions_page(filtered_df):
                 'Most Loved Competitor network in in Month 1': [competitor_month1],
                 'Most Loved Competitor network in in Month 2': [competitor_month2]
             })
+
+            # Forcer le type des colonnes catégorielles
+            for col in cat_cols:
+                new_data[col] = new_data[col].astype("category")
+                        
+            st.write(new_data)
+            st.write(new_data.dtypes)
+
+
             
             # Appliquer le pipeline pour transformer les nouvelles données
             new_data_transformed = pipeline.transform(new_data)
+            
 
             
             # Faire la prédiction
@@ -412,8 +432,8 @@ def predictions_page(filtered_df):
             prediction = model.predict(new_data_transformed)
             try:
                 # Prédiction de la probabilité
-                proba = model.predict_proba(new_data)[:, 1][0]
-                prediction = model.predict(new_data)[0]
+                proba = model.predict_proba(new_data_transformed)[:, 1][0]
+                prediction = model.predict(new_data_transformed)[0]
                 
                 # Déterminer les couleurs et messages selon la gravité
                 if proba < 0.3:
@@ -492,17 +512,39 @@ def predictions_page(filtered_df):
             new_data = pd.read_csv(uploaded_file)
         else:
             new_data = pd.read_excel(uploaded_file)
+            
+        # Liste des colonnes catégorielles
+        cat_cols = [
+            'Customer ID',
+            'Network type subscription in Month 1',
+            'Network type subscription in Month 2',
+            'Most Loved Competitor network in in Month 1',
+            'Most Loved Competitor network in in Month 2'
+        ]
+
+        # Conversion en str
+        for col in cat_cols:
+            if col in new_data.columns:
+                new_data[col] = new_data[col].astype("category")
+
         
         st.write("### Aperçu des données importées")
         st.dataframe(new_data.head())
         
+        st.write(new_data.dtypes)
+        
         # Appliquer la transformation avec le pipeline
         new_data_transformed = pipeline.transform(new_data)
+        
+        st.dataframe(new_data_transformed.head())
+        
+        st.write(new_data_transformed.dtypes)
+
 
         try:
             # Prédiction de la probabilité
-            proba = model.predict_proba(new_data)[:, 1]
-            prediction = model.predict(new_data)
+            proba = model.predict_proba(new_data_transformed)[:, 1]
+            prediction = model.predict(new_data_transformed)
             
             # Ajout des prédictions aux données
             new_data['Churn_Probability'] = proba

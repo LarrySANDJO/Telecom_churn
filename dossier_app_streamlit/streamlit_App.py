@@ -7,7 +7,7 @@ import joblib
 import page_predictions
 import page_recommandations
 import home_page
-from pipeline import *
+from script_pipeline import *
 
 
 # Configuration de base
@@ -28,6 +28,7 @@ def load_data(data):
     
     # # Prétraitement des données
     data_preprocessed = pipeline.transform(data)
+    data_preprocessed = data_preprocessed.drop(columns=["Customer ID"])
     
     # # Prédictions
     predictions = model.predict(data_preprocessed)
