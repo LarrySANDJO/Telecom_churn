@@ -12,7 +12,7 @@ def predictions_page(filtered_df):
     st.title("🔮 prédictions de churn")
     
     # Chargement du modèle ( contient déjà le pipeline de traitement)
-    model = joblib.load('dossier_app_streamlit/churn_model.joblib')
+    model = joblib.load('dossier_app_streamlit/churn_model.pkl')
     pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
     
     # Première ligne de métriques
@@ -401,7 +401,7 @@ def predictions_page(filtered_df):
             })
             
             # Appliquer le pipeline pour transformer les nouvelles données
-            #new_data_transformed = pipeline.transform(new_data)
+            new_data_transformed = pipeline.transform(new_data)
 
             
             # Faire la prédiction
@@ -409,7 +409,7 @@ def predictions_page(filtered_df):
             #new_data_transformed = pipeline.transform(new_data)
 
             # Prédire avec le modèle
-            # prediction = model.predict(new_data_transformed)
+            prediction = model.predict(new_data_transformed)
             try:
                 # Prédiction de la probabilité
                 proba = model.predict_proba(new_data)[:, 1][0]

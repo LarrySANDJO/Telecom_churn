@@ -27,15 +27,15 @@ pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
 def load_data(data):
     
     # # Prétraitement des données
-    # # data_preprocessed = preprocessor.transform(data)
+    data_preprocessed = pipeline.transform(data)
     
     # # Prédictions
-    # predictions = model.predict(data)
-    # proba_predictions = model.predict_proba(data)[:, 1]
+    predictions = model.predict(data_preprocessed)
+    proba_predictions = model.predict_proba(data_preprocessed)[:, 1]
     
     # # Ajout des colonnes de prédiction
-    # data['Churn_Prediction'] = predictions
-    # data['Churn_Probability'] = proba_predictions
+    data['Churn_Prediction'] = predictions
+    data['Churn_Probability'] = proba_predictions
     
     return data
 
@@ -96,8 +96,15 @@ def main():
 
     # chargement et traitement de données
     data = pd.read_csv('dossier_app_streamlit/data/nig_clean.csv')
+    
+    churn_status = data['Churn Status']
+    
+    data = data.drop(columns=['Churn Status', 'Unnamed: 0'])
 
     df = load_data(data)
+    
+    df['Churn Status'] = churn_status
+    
     
     # Ajout d'un style CSS pour personnaliser la barre de navigation
     st.markdown("""

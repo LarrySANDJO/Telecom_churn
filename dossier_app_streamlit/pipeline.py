@@ -109,22 +109,8 @@ class CleanColumnNames(BaseEstimator, TransformerMixin):
         X.columns = X.columns.str.replace(" ", " ")
         return X
 
-class FixADF1623(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-    def transform(self, X):
-        X = X.copy()
-        mask = X["Customer ID"] == "ADF1623"
-        for col in ["network_age", "Customertenureinmonth"]:
-            if col in X.columns:
-                X.loc[mask, col] = X.loc[mask, col].abs()
-        return X
 
-class RemoveNegNetworkAgeExceptADF1623(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-    def transform(self, X):
-        return X[(X["Customer ID"] == "ADF1623") | (X["network_age"] >= 0)].copy()
+
 
 class CreateAdditionalFeatures(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
@@ -178,7 +164,7 @@ class CreateRatios(BaseEstimator, TransformerMixin):
             "Total Onnet spend", 
             "Total Offnet spend"
         ]
-        variables_suppr = ['Customer ID', 'network_age']
+        variables_suppr = ['network_age']
         for var in variables:
             if var in X.columns:
                 X[f"{var}_ratio"] = X[var] / X[base].replace(0, np.nan)
@@ -190,7 +176,7 @@ class ScaleQuantVars(BaseEstimator, TransformerMixin):
         self.scaler = MinMaxScaler()
 
     def fit(self, X, y=None):
-        self.columns = X.select_dtypes(include=[np.number]).columns.difference(["Churn Status"])
+        self.columns = X.select_dtypes(include=[np.number]).columns
         self.scaler.fit(X[self.columns])
         return self
 
@@ -199,14 +185,7 @@ class ScaleQuantVars(BaseEstimator, TransformerMixin):
         X[self.columns] = self.scaler.transform(X[self.columns])
         return X
 
-class TransformChurnStatus(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-    def transform(self, X):
-        X = X.copy()
-        if 'Churn Status' in X.columns:
-            X['Churn Status'] = X['Churn Status'].apply(lambda x: -1 if x == 0 else 1)
-        return X
+
 
 # ------------------------------
 # Étape 3 : Pipeline global
@@ -220,12 +199,9 @@ class FullPreprocessingPipeline(BaseEstimator, TransformerMixin):
         self.quant_pipeline = Pipeline([
             ('imputer', ImputeByIQR()),
             ("clean_columns", CleanColumnNames()),
-            ("fix_adf1623", FixADF1623()),
-            ("remove_neg_network_age", RemoveNegNetworkAgeExceptADF1623()),
             ("add_features", CreateAdditionalFeatures()),
             ("create_ratios", CreateRatios()),
-            ("scale_vars", ScaleQuantVars()),
-            ("transform_churn", TransformChurnStatus())
+            ("scale_vars", ScaleQuantVars())
         ])
 
     def fit(self, X, y=None):
@@ -241,6 +217,6 @@ class FullPreprocessingPipeline(BaseEstimator, TransformerMixin):
 
 # ------------------------------
 # Utilisation
-# # ------------------------------
-# pipeline = FullPreprocessingPipeline()
+# ------------------------------
+pipeline = FullPreprocessingPipeline()
 # df_final = pipeline.fit_transform(df1)
