@@ -40,6 +40,14 @@ def load_data(data):
     
     return data
 
+# Features importances colums
+def features_importances_colums(data):
+    
+    # # Prétraitement des données
+    data_preprocessed = pipeline.transform(data)
+    
+    return data_preprocessed.columns
+
 # Sidebar de filtres
 def sidebar_filters(df):
     st.sidebar.title("📊 Filtres")
@@ -144,7 +152,7 @@ def main():
     # Filtres 
     filtered_df = sidebar_filters(df)
     
-    
+    feature_names = features_importances_colums(data)
     
     
     # Affichage du contenu en fonction de l'onglet sélectionné
@@ -152,7 +160,7 @@ def main():
         home_page.home_page(filtered_df)
     
     with tabs[1]:
-        page_predictions.predictions_page(filtered_df)
+        page_predictions.predictions_page(filtered_df, feature_names)
     
     with tabs[2]:
         page_recommandations.recommendations_page(filtered_df)

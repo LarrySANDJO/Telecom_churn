@@ -9,7 +9,7 @@ from script_pipeline import *
 
 pio.templates.default = "plotly_white"
 
-def predictions_page(filtered_df):
+def predictions_page(filtered_df, feature_names):
     st.title("🔮 prédictions de churn")
     
     # Chargement du modèle ( contient déjà le pipeline de traitement)
@@ -25,7 +25,7 @@ def predictions_page(filtered_df):
     
     with col1:
         # KPI: Taux de clients à haut risque (probabilité > 0.7)
-        high_risk = active_clients[active_clients['Churn_Probability'] > 0.7].shape[0]
+        high_risk = active_clients[active_clients['Churn_Probability'] > 0.6].shape[0]
         st.metric("Clients à haut risque", f"{high_risk:,}({(high_risk / active_count * 100):.1f}%)")
        
         
@@ -131,7 +131,7 @@ def predictions_page(filtered_df):
         display_stylized_title("Répartition du churn par segment")
 
         # Filtrer les clients à haut risque
-        high_risk_clients = active_clients[active_clients['Churn_Probability'] > 0.7]
+        high_risk_clients = active_clients[active_clients['Churn_Probability'] > 0.6]
 
         # Calculer la répartition des clients à haut risque par segment
         high_risk_by_segment = high_risk_clients.groupby('Segment').size().reset_index(name='Count')
@@ -171,8 +171,8 @@ def predictions_page(filtered_df):
         segment_total = active_clients['Segment'].value_counts().reset_index()
         segment_total.columns = ['Segment', 'Total']
 
-        # Nombre de clients à risque par segment (> 0.7)
-        active_clients_pred = active_clients[active_clients['Churn_Probability'] > 0.7]
+        # Nombre de clients à risque par segment (> 0.6)
+        active_clients_pred = active_clients[active_clients['Churn_Probability'] > 0.6]
         segment_risk = active_clients_pred['Segment'].value_counts().reset_index()
         segment_risk.columns = ['Segment', 'À_Risque']
 
@@ -211,17 +211,18 @@ def predictions_page(filtered_df):
         # Importances des variables (si disponible dans le modèle)
         try:
             # Récupérer les importances des features si disponibles
-            if hasattr(model['classifier'], 'feature_importances_'):
+            if hasattr(model, 'feature_importances_'):
                 # Liste des noms de features (à adapter selon votre modèle)
-                feature_names = [
-                    'Âge réseau', 'Ancienneté client', 'Dépenses totales', 
-                    'Dépenses SMS', 'Dépenses data', 'Consommation data',
-                    'Appels uniques', 'Dépenses Onnet', 'Dépenses Offnet', 
-                    'Appels plaintes', 'Type réseau M1', 'Type réseau M2',
-                    'Réseau concurrent M1', 'Réseau concurrent M2'
-                ]
+                # feature_names = [
+                #     'Âge réseau', 'Ancienneté client', 'Dépenses totales', 
+                #     'Dépenses SMS', 'Dépenses data', 'Consommation data',
+                #     'Appels uniques', 'Dépenses Onnet', 'Dépenses Offnet', 
+                #     'Appels plaintes', 'Type réseau M1', 'Type réseau M2',
+                #     'Réseau concurrent M1', 'Réseau concurrent M2'
+                # ]
                 
-                importances = model['classifier'].feature_importances_
+                
+                importances = list(model.feature_importances_)
                 
                 # Ajuster selon le nombre réel
                 if len(importances) < len(feature_names):

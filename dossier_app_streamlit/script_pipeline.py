@@ -186,15 +186,19 @@ class ScaleQuantVars(BaseEstimator, TransformerMixin):
         return X
     
 class ColumnSorter(BaseEstimator, TransformerMixin):
-    def __init__(self, columns_order=None):
-        self.columns_order = columns_order
+    def __init__(self):
+        self.columns_order = None
 
     def fit(self, X, y=None):
         self.columns_order = X.columns.tolist()
         return self
 
     def transform(self, X):
+        missing_cols = set(self.columns_order) - set(X.columns)
+        if missing_cols:
+            raise ValueError(f"Colonnes manquantes dans transform : {missing_cols}")
         return X[self.columns_order]
+
 
 
 
