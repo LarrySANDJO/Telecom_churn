@@ -28,7 +28,7 @@ def load_data(data):
     
     # # Prétraitement des données
     data_preprocessed = pipeline.transform(data)
-    data_preprocessed = data_preprocessed.drop(columns=["Customer ID"])
+    #data_preprocessed = data_preprocessed.drop(columns=["Customer ID"])
     
     # # Prédictions
     predictions = model.predict(data_preprocessed)
