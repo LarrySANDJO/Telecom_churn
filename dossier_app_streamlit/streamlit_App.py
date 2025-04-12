@@ -55,7 +55,8 @@ def sidebar_filters(df):
     risk_levels = pd.cut(
         df['Churn_Probability'], 
         bins=[0, 0.3, 0.6, 1], 
-        labels=['Faible', 'Moyen', 'Élevé']
+        labels=['Faible', 'Moyen', 'Élevé'],
+        include_lowest=True
     )
     df['Risk_Level'] = risk_levels
     
@@ -66,16 +67,22 @@ def sidebar_filters(df):
     )
     
     # Segments 
-    df['Segment'] = pd.qcut(
-        df['Total Spend in Months 1 and 2 of 2017'], 
-        q=4, 
-        labels=['Bas', 'Moyen-Inf', 'Moyen-Sup', 'Élevé']
-    )
+    # Création de la variable segment basée sur les clusters
+    df['Segment'] = pd.cut(df['Total Spend in Months 1 and 2 of 2017'],
+                       bins=[0, 2332.63, 9969.21, float('inf')],
+                       labels=["Faible", "Moyenne", "Élevé"],
+                       right=False)
+
+# Explication des seuils:
+# - "Faible": dépenses < 2332.63 (min du cluster 2)
+# - "Moyenne": 2332.63 ≤ dépenses < 9969.21 (min du cluster 1)
+# - "Élevé": dépenses ≥ 9969.21
+    
     
     segment_filter = st.sidebar.multiselect(
         "Segment Client", 
-        options=['Bas', 'Moyen-Inf', 'Moyen-sup', 'Élevé'], 
-        default=['Bas', 'Moyen-Inf', 'Moyen-sup', 'Élevé']
+        options=["Faible", "Moyenne", "Élevé"], 
+        default=["Faible", "Moyenne", "Élevé"]
     )
 
     
