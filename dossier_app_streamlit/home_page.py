@@ -351,7 +351,7 @@ def home_page(filtered_df):
     with col1:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition des clients par segment de dépense</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des clients par segment</h3>
             </div>
         """, unsafe_allow_html=True)
         
@@ -380,7 +380,7 @@ def home_page(filtered_df):
     with col2:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses totales par segment</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par segment</h3>
             </div>
         """, unsafe_allow_html=True)
        
@@ -476,7 +476,7 @@ def home_page(filtered_df):
     with col4:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par type de réseau (Mois 2)</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par type de réseau</h3>
             </div>
         """, unsafe_allow_html=True)
         
