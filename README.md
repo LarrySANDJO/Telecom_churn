@@ -100,7 +100,7 @@ Les auteurs de ce projet sont essentiellement les _eleves ingenieurs statisticie
 - MATANG KUETE Josette Victoire
 - SANDJO Larry Shuman 
 
-*Élèves Ingénieurs Statisticiens Économistes en deuxième année de formation*
+*Élèves Ingénieurs Statisticiens Économistes en deuxième année de formation à l'ENSAE de Dakar*
 
 
 **Suggestions et Remarques**
