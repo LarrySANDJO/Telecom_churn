@@ -295,7 +295,7 @@ st.sidebar.image(
 def display_header():
     st.markdown("""
         <div class="dashboard-header animate-fade-in">
-            <h1 style = "font-weight: bold;">APPLICATION D'ANALYSE DES DONNÉES CLIENTÈLES DE NIGERIA TELECOM</h1>
+            <h1 style = "font-weight: bold;">DASHBOARD D'ANALYSE DU "CHURN CLIENT" CHEZ NIGERIA TELECOM</h1>
         </div>
     """, unsafe_allow_html=True)
 
