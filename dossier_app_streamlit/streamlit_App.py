@@ -177,7 +177,7 @@ st.markdown("""
 }
 
 .stButton > button:hover {
-    background-color: var(--auchan-red-dark);
+    background-color: red;
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
 }

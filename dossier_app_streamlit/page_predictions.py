@@ -452,9 +452,6 @@ def predictions_page(filtered_df, feature_names):
         # Appliquer la transformation avec le pipeline
         new_data_transformed = pipeline.transform(new_data)
         
-        st.dataframe(new_data_transformed.head())
-        
-        st.write(new_data_transformed.dtypes)
 
 
         try:
