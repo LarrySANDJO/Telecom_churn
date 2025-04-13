@@ -23,7 +23,7 @@ Notre projet s’inscrit dans le domaine de la Business Intelligence. Il vise à
 •	Fournir un outil d’aide à la décision utilisable par les équipes métier via une interface intuitive. 
 
 
-## Structure du projet 
+## 📌 Structure du projet 
 
 1. Le dossier `CHURN` contient les notebooks de traitement des donnees et du choix du modeles ainsi que les données utilisées pour le traitement et la modélisation.
 
@@ -42,7 +42,7 @@ AUC-ROC : **91,8 %**
 
 Optimisé avec GridSearchCV
 
-## Installation et Configuration
+## 📌 Installation et Configuration
 
 1. Clonez le dépôt et placez-vous dans le dossier AuchanScraping via un terminal :
    ```bash
@@ -62,7 +62,7 @@ Optimisé avec GridSearchCV
    pip install -r requirements.txt
    ```
 
-## Application
+## 📌 Application
 
 Pour une visualisation instantanée des dynamiques réseau et une transformation rapide des données complexes en insights actionnables pour une prise de décision stratégique, le dashboard est l’outil idéal. Un dashboard  a donc été développé avec Streamlit, un framework Python simple et puissant qui permet de créer des interfaces web interactives pour la data science et le machine learning. Grâce à Streamlit, les utilisateurs peuvent visualiser des données, interagir avec des modèles prédictifs et explorer des résultats en temps réel, le tout sans avoir besoin de compétences en développement web. 
 Dédié à l'analyse et la prédiction de l’attrition client, ce dashboard s'articule autour de trois pages principales :
@@ -92,7 +92,7 @@ Dédié à l'analyse et la prédiction de l’attrition client, ce dashboard s'a
 
 
 
-## Auteurs 
+## 📌 Auteurs 
 
 Les auteurs de ce projet sont essentiellement les _eleves ingenieurs statisticiens economistes_ d'ISE2 2024-2025. Il s'agit de :
 
@@ -100,7 +100,9 @@ Les auteurs de ce projet sont essentiellement les _eleves ingenieurs statisticie
 - MATANG KUETE Josette Victoire
 - SANDJO Larry Shuman 
 
-**
+*Élèves Ingénieurs Statisticiens Économistes en deuxième année de formation*
 
 
-![Page de prediction des prix](prediction.png)
+**Suggestions et Remarques**
+
+Nous sommes ouverts à toutes les suggestions et remarques qui pourraient améliorer ce projet. N'hésitez pas à partager vos idées, retours ou signaler des problèmes en ouvrant une *issue* sur ce dépôt. Nous ferons de notre mieux pour y répondre rapidement et intégrer vos retours. Merci.
