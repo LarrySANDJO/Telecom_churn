@@ -67,3 +67,32 @@ def recommendations_page(filtered_df):
     low_ratio_clients = filtered_df[filtered_df['ratio_offnet_onnet'] < 1]
     low_ratio_clients = low_ratio_clients.sort_values(by="ratio_offnet_onnet", ascending=True)
     st.dataframe(low_ratio_clients[["Customer ID", "Total Offnet spend", "Total Onnet spend", "ratio_offnet_onnet"]])
+
+    
+    # cients avec migrations à risque
+    # 1. Filtrer les clients avec migration 3G → 2G
+    migration_3g_to_2g = active_clients[
+        (active_clients['Network type subscription in Month 1'] == '3G') & 
+        (active_clients['Network type subscription in Month 2'] == '2G')
+    ]
+
+    # 2. Sélecteur interactif pour le nombre de clients à afficher
+    num_clients = st.slider(
+        "Nombre de clients à analyser (3G → 2G)", 
+        min_value=1, 
+        max_value=len(migration_3g_to_2g), 
+        value=min(5, len(migration_3g_to_2g))
+    )
+
+    # 3. Afficher le tableau des clients concernés
+    st.subheader("🔍 Clients migrant de la 3G à la 2G")
+    st.dataframe(
+        migration_3g_to_2g[[
+            'Customer ID', 
+            'Network type subscription in Month 1', 
+            'Network type subscription in Month 2',
+            'Total Spend in Months 1 and 2 of 2017',
+            'Churn Status'  
+        ]].head(num_clients),
+        height=300
+    )
