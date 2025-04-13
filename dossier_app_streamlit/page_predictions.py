@@ -32,9 +32,19 @@ def predictions_page(filtered_df, feature_names):
     with col1:
         # KPI: Taux de clients à haut risque (probabilité > 0.6)
         high_risk = active_clients[active_clients['Churn_Probability'] > 0.6].shape[0]
-        st.info('Clients à haut risque',icon="📌")
-        display_custom_metric("Clients à haut risque", f"{high_risk:,}({(high_risk / active_count * 100):.1f}%)", "#0000FF")
-        
+        st.sidebar.info('Nombre de clients à haut risque',icon="📌")
+        value = f"{high_risk:,}({(high_risk / active_count * 100):.1f}%)"
+        label = "Clients à haut risque"
+        color = "#0000FF"
+        st.sidebar.markdown(
+        f"""
+        <div style="background-color: {color}; padding: 20px; border-radius: 10px; margin: 5px 0;">
+            <p style="font-size: 9px; margin: 0; color: white;">{label}</p>
+            <h2 style="margin: 0; color: white; font-weight: bold">{value}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
        
         
     # Deuxième ligne de graphiques
