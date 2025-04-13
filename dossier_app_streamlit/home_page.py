@@ -26,7 +26,7 @@ def home_page(filtered_df):
         st.metric("Ancienneté Moyenne", f"{active_clients['Customer tenure in month'].mean():.1f} mois")
 
     with col4:
-        st.metric("Nombre et taux de plaintes", f"{(filtered_df['Total Call centre complaint calls']).sum()}({active_clients['Total Call centre complaint calls'].mean():.1f}%")
+        st.metric("Nombre et taux de plaintes", f"{(filtered_df['Total Call centre complaint calls']).sum()}({active_clients['Total Call centre complaint calls'].mean():.1f}%)")
     
     
     # Les styles communs pour les graphiques en barres
