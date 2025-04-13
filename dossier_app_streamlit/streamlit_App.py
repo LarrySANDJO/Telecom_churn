@@ -30,7 +30,7 @@ st.markdown("""
 <style>
 
 /* Variables globales */
-:root {
+/*:root {
     --auchan-red: #e63946;
     --auchan-red-dark: #e63946;
     --auchan-red-light: #fde8eb;
@@ -38,7 +38,7 @@ st.markdown("""
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
     --border-radius: 8px;
-}
+}*/
 
 
 
