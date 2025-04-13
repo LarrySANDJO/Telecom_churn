@@ -9,6 +9,7 @@ import page_recommandations
 import home_page
 from streamlit_option_menu import option_menu
 from script_pipeline import *
+from functions import *
 
 
 # Configuration de base---------------------------------------------------
@@ -79,7 +80,7 @@ st.markdown("""
     background-color:#0A04AA;
     color: white;
     padding: 1.5rem;
-    border-radius: var(--border-radius);
+    border-radius: 10px;
     margin-bottom: 2rem;
     box-shadow: var(--shadow-md);
 }
@@ -166,11 +167,11 @@ st.markdown("""
 
 /* Boutons */
 .stButton > button {
-    background-color: var(--auchan-red);
+    background-color: red;
     color: white;
     border: none;
     padding: 0.5rem 1.5rem;
-    border-radius: var(--border-radius);
+    border-radius: 10px;
     font-weight: 500;
     transition: all 0.3s ease;
 }
