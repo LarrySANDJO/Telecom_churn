@@ -44,80 +44,6 @@ def home_page(filtered_df):
     st.markdown("---")
 
     
-    # Les styles communs pour les graphiques en barres
-    def style_plotly_figure(fig, title_text, yaxis_title_text, xaxis_title_text=''):
-        fig.update_layout(
-            title=dict(
-                text=title_text,
-                font=dict(size=20, family='Arial Black', color='black', weight='bold')
-            ),
-            xaxis=dict(
-                title=xaxis_title_text,
-                title_font=dict(
-                    size=16,
-                    family='Arial',
-                    color='black',
-                    weight='bold'
-                ),
-                tickfont=dict(
-                    family="Arial Black",
-                    size=12,
-                    color='black'
-                )
-            ),
-            yaxis=dict(
-                title=yaxis_title_text,
-                title_font=dict(
-                    size=16,
-                    family='Arial',
-                    color='black',
-                    weight='bold'
-                ),
-                showticklabels=False,  # Pas de chiffres sur l’axe Y
-                showgrid=False
-            ),
-            font=dict(
-                family="Arial Black",
-                size=12,
-                color='black'
-            )
-        )
-
-        fig.update_traces(
-            texttemplate='<b>%{text:.1f}%</b>',
-            textposition='outside',
-            textfont=dict(
-                family='Arial, sans-serif',
-                size=12,
-                color='black'
-            )
-        )
-        return fig
-
-    
-    # Style commun aux secteurs
-    def style_pie_chart(fig, title_text):
-        fig.update_layout(
-            title=dict(
-                text=title_text,
-                font=dict(size=20, family='Arial Black', color='black', weight='bold')
-            ),
-            font=dict(
-                family="Arial Black",
-                size=12,
-                color='black'
-            )
-            #showlegend=False  # Suppression de la légende
-        )
-        
-        # Personnalisation des étiquettes et pourcentages dans les secteurs
-        fig.update_traces(
-            textposition='inside',
-            textinfo='percent+label',
-            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
-        )
-        
-        return fig
 
     
     
@@ -133,7 +59,7 @@ def home_page(filtered_df):
     with col1:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition du churn par segment de dépense</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition du churn par segment</h3>
             </div>
         """, unsafe_allow_html=True)
     
@@ -169,7 +95,7 @@ def home_page(filtered_df):
     with col2:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Taux de churn par Segment de dépense</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Pourcentage de churn par Segment</h3>
             </div>
         """, unsafe_allow_html=True)
         
