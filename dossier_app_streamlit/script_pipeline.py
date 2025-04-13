@@ -20,7 +20,9 @@ class ImputeByIQR(BaseEstimator, TransformerMixin):
         Cette méthode calcule les bornes IQR pour chaque variable quantitative.
         """
         # Sélection des colonnes quantitatives
-        self.quant_columns = X.select_dtypes(include=[np.number]).columns
+        exclude_cols = ['Network_Upgrade']
+        self.quant_columns = [col for col in X.select_dtypes(include=[np.number]).columns
+                              if col not in exclude_cols]
         
         # Calcul des bornes IQR pour chaque variable quantitative
         self.lower_bounds = {}
@@ -119,11 +121,11 @@ class CreateAdditionalFeatures(BaseEstimator, TransformerMixin):
     def transform(self, X):
         X = X.copy()
 
-        # 1. Consistent competitor
-        X['Consistent_competitor'] = (
-            X['Most Loved Competitor network in in Month 1'].astype(str) == 
-            X['Most Loved Competitor network in in Month 2'].astype(str)
-        ).astype(int)
+        # # 1. Consistent competitor
+        # X['Consistent_competitor'] = (
+        #     X['Most Loved Competitor network in in Month 1'].astype(str) == 
+        #     X['Most Loved Competitor network in in Month 2'].astype(str)
+        # ).astype(int)
 
         # 2. Network Upgrade
         def upgrade_status(row):
@@ -160,11 +162,10 @@ class CreateRatios(BaseEstimator, TransformerMixin):
         variables = [
             "Total SMS Spend", 
             "Total Data Spend", 
-            "Total Unique Calls", 
             "Total Onnet spend", 
             "Total Offnet spend"
         ]
-        variables_suppr = ['network_age', 'Customer ID']
+        variables_suppr = ['network_age', 'Customer ID', 'Total Unique Calls']
         for var in variables:
             if var in X.columns:
                 X[f"{var}_ratio"] = X[var] / X[base].replace(0, np.nan)
@@ -214,10 +215,10 @@ class FullPreprocessingPipeline(BaseEstimator, TransformerMixin):
             ("sort_columns", ColumnSorter())
         ])
         self.quant_pipeline = Pipeline([
-            ('imputer', ImputeByIQR()),
             ("clean_columns", CleanColumnNames()),
             ("add_features", CreateAdditionalFeatures()),
             ("create_ratios", CreateRatios()),
+            ('imputer', ImputeByIQR()),
             ("scale_vars", ScaleQuantVars())
         ])
 
@@ -230,10 +231,12 @@ class FullPreprocessingPipeline(BaseEstimator, TransformerMixin):
         X = self.quant_pipeline.transform(X.copy())
         X_cat = self.cat_pipeline.transform(X[cat_features])
         X[cat_features] = X_cat.astype(float)
+        variables_suppr = ['Network type subscription in Month 1']
+        X.drop(columns=variables_suppr, inplace=True, errors='ignore')
         return X
 
 # ------------------------------
 # Utilisation
 # ------------------------------
-# pipeline = FullPreprocessingPipeline()
+#pipeline = FullPreprocessingPipeline()
 # df_final = pipeline.fit_transform(df1)

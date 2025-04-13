@@ -3,10 +3,16 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+from functions import *
 
 # Page 3: Recommandations
 def recommendations_page(filtered_df):
-    st.title("📋 Recommandations")
+    st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h2 style = "text-align: center;font-weight: bold;">📋 Recommandations</h2>
+            </div>
+        """, unsafe_allow_html=True)
+    
     
     # Filtrer uniquement les clients actifs (Churn Status == 0)
     active_clients = filtered_df[filtered_df['Churn Status'] == 0]
@@ -15,7 +21,9 @@ def recommendations_page(filtered_df):
     # Sélections du nombre de clients à afficher
     num_risk_clients = st.slider("Nombre de clients à risque à afficher", 1, active_count, 5)
     
-    st.subheader("Clients les plus à risque")
+    
+    display_stylized_title("Clients les plus à risque")
+    
     clients_risque = filtered_df.sort_values(by="Churn_Probability", ascending=False).head( num_risk_clients)
     clients_risque["Risque"] = clients_risque["Churn_Probability"].apply(lambda x: "Critique" if x > 0.7 else ("Élevé" if x > 0.5 else "Modéré"))
 

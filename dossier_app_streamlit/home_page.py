@@ -5,30 +5,44 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import plotly.io as pio
+import seaborn as sns
+from functions import *
 
 pio.templates.default = "plotly_white"
 
 # Page 1: Accueil & KPIs
 def home_page(filtered_df):
-    st.title("📊 Tableau de Bord du Churn")
+    
+    st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h2 style = "text-align: center;font-weight: bold;">💡 Statistiques Generales sur les clients</h2>
+            </div>
+        """, unsafe_allow_html=True)
     
     # KPIs
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Taux de Churn", f"{filtered_df['Churn Status'].mean()*100:.1f}%")
+        st.info('Taux de churn sur les deux mois',icon="📌")
+        display_custom_metric("Taux de Churn", f"{filtered_df['Churn Status'].mean()*100:.1f}%", "#0000FF")
 
     with col2:
-        st.metric("Nombre et taux d'actifs", f"{(filtered_df['Churn Status'] == 0).sum()}({((filtered_df['Churn Status'] == 0).sum() / filtered_df.shape[0] * 100):.1f}%)")
+        st.info('Nombre et taux de clients actifs',icon="📌")
+        display_custom_metric("Nombre et taux d'actifs", f"{(filtered_df['Churn Status'] == 0).sum()}({((filtered_df['Churn Status'] == 0).sum() / filtered_df.shape[0] * 100):.1f}%)", "#228B22")
     
     with col3:
         active_clients = filtered_df[filtered_df['Churn Status'] == 0]
-    
-        st.metric("Ancienneté Moyenne", f"{active_clients['Customer tenure in month'].mean():.1f} mois")
-
+        
+        st.info('Ancienneté Moyenne des clients en mois',icon="📌")
+        display_custom_metric("Ancienneté Moyenne", f"{active_clients['Customer tenure in month'].mean():.1f} mois", "#FF0000")
+        
     with col4:
-        st.metric("Nombre et taux de plaintes", f"{(filtered_df['Total Call centre complaint calls']).sum()}({active_clients['Total Call centre complaint calls'].mean():.1f}%")
-    
+        st.info('Nombre et taux de plaintes des clients',icon="📌")
+        display_custom_metric("Nombre et taux de plaintes", f"{(filtered_df['Total Call centre complaint calls']).sum()}({active_clients['Total Call centre complaint calls'].mean():.1f}%)", "#FE9900")
+        
+        
+    st.markdown("---")
+
     
     # Les styles communs pour les graphiques en barres
     def style_plotly_figure(fig, title_text, yaxis_title_text, xaxis_title_text=''):
@@ -66,8 +80,7 @@ def home_page(filtered_df):
                 family="Arial Black",
                 size=12,
                 color='black'
-            ),
-            showlegend=False
+            )
         )
 
         fig.update_traces(
@@ -93,8 +106,8 @@ def home_page(filtered_df):
                 family="Arial Black",
                 size=12,
                 color='black'
-            ),
-            showlegend=False  # Suppression de la légende
+            )
+            #showlegend=False  # Suppression de la légende
         )
         
         # Personnalisation des étiquettes et pourcentages dans les secteurs
@@ -107,12 +120,23 @@ def home_page(filtered_df):
         return fig
 
     
-    st.header("🔍 Analyse des Départs Clients")
+    
+    st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h2 style = "text-align: center;font-weight: bold;">🔍 Analyse des Départs Clients</h2>
+            </div>
+        """, unsafe_allow_html=True)
+    
      # Deuxième ligne: graphiques
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.header("Répartition du churn par segment de dépense")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition du churn par segment de dépense</h3>
+            </div>
+        """, unsafe_allow_html=True)
+    
         
         # Graphique de repartition au churn par segment
         churn_by_segment = filtered_df.groupby('Segment')['Churn Status'].sum().reset_index()
@@ -143,7 +167,12 @@ def home_page(filtered_df):
 
     
     with col2:
-        st.header("Taux de churn par Segment")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Taux de churn par Segment</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         # Calculer le taux de churn par segment
         churn_by_segment = filtered_df.groupby('Segment')['Churn Status'].mean().reset_index()
         churn_by_segment = churn_by_segment.sort_values(by='Churn Status', ascending=False)
@@ -170,7 +199,12 @@ def home_page(filtered_df):
 
     
     with col3:
-        st.header("Taux de churn par niveau de plainte")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Taux de churn par niveau de plainte</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         # Regrouper les plaintes en catégories
         def categorize_complaints(n):
             if n == 0:
@@ -270,7 +304,12 @@ def home_page(filtered_df):
         
         
     with col4:
-        st.header("Taux de Churn par niveau d\'ancienneté")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Taux de Churn par niveau d'ancienneté</h3>
+            </div>
+        """, unsafe_allow_html=True)
+    
         
         def categorize_tenure(months):
             if months <= 12:
@@ -371,11 +410,25 @@ def home_page(filtered_df):
      
     
     # Troisième ligne de graphiques
-    st.header("💰 Focus performances financières")
+    
+    st.markdown("---")
+
+    
+    st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h2 style = "text-align: center;font-weight: bold;">💰 Focus performances financières</h2>
+            </div>
+        """, unsafe_allow_html=True)
+
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.header("Répartition des clients par segment")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des clients par segment</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         # Graphique de répartition par segment
         segment_counts = active_clients['Segment'].value_counts().reset_index()
         segment_counts.columns = ['Segment', 'Count']
@@ -385,6 +438,7 @@ def home_page(filtered_df):
             segment_counts, 
             values='Count', 
             names='Segment',
+            hole=0.3,
             color='Segment'  # Utilise 'Segment' comme base de couleur
         )
 
@@ -398,7 +452,12 @@ def home_page(filtered_df):
         st.plotly_chart(fig, use_container_width=True)
     
     with col2:
-        st.header("Répartition des dépenses totales par segment")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses totales par segment</h3>
+            </div>
+        """, unsafe_allow_html=True)
+       
         # Dépenses totales
         active_clients["Total Spend"] = (
         active_clients["Total SMS Spend"] +
@@ -436,7 +495,12 @@ def home_page(filtered_df):
         st.plotly_chart(fig_segment, use_container_width=True)
 
     with col3:
-        st.header("Répartition des dépenses par service")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par service</h3>
+            </div>
+        """, unsafe_allow_html=True)
+
         
         # Dépenses totales
         active_clients["Total Spend"] = (
@@ -470,6 +534,7 @@ def home_page(filtered_df):
             service_df, 
             values="Pourcentage", 
             names="Service",
+            hole=0.3,
             color="Service" 
         )
 
@@ -483,8 +548,12 @@ def home_page(filtered_df):
         st.plotly_chart(fig, use_container_width=True)
 
     with col4:
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par type de réseau (Mois 2)</h3>
+            </div>
+        """, unsafe_allow_html=True)
         
-        st.header("Répartition des dépenses par type de réseau (Mois 2)")
         
         # Calculer la dépense totale par type de réseau
         network_revenue = filtered_df.groupby('Network type subscription in Month 2')['Total Spend in Months 1 and 2 of 2017'].sum().reset_index()
@@ -515,12 +584,25 @@ def home_page(filtered_df):
         st.plotly_chart(fig5, use_container_width=True)
 
     
-    st.header("📶 Focus comportement Réseau & concurrence")
+    
+    st.markdown("---")
+
+    st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h2 style = "text-align: center;font-weight: bold;">📶 Focus comportement Réseau & concurrence</h2>
+            </div>
+        """, unsafe_allow_html=True)
+
     # Troisième ligne de graphiques
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.header("Répartition par réseaux concurrents les plus préférés")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition par réseaux concurrents les plus préférés</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         # Filtrer les clients dont le réseau concurrent préféré est resté le même entre les mois 1 et 2
         same_competitor = filtered_df[
             filtered_df['Most Loved Competitor network in in Month 1'] == 
@@ -563,7 +645,12 @@ def home_page(filtered_df):
 
     # Histogramme du ratio Offnet/Onnet
     with col2:
-        st.subheader("Répartition des clients selon le ratio Offnet/Onnet")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des clients selon le ratio Offnet/Onnet</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         
         # Créer une colonne de catégories
         def categorize_ratio(r):
@@ -606,7 +693,12 @@ def home_page(filtered_df):
         
     #  Diagramme en barres du ratio moyen par segment
     with col3:
-        st.subheader("Ratio moyen par segment")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Ratio moyen par segment</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         mean_ratio = filtered_df.groupby('Segment')['Ratio Offnet/Onnet'].mean().reset_index()
         mean_ratio.columns = ['Segment', 'Ratio moyen']
 
@@ -647,7 +739,12 @@ def home_page(filtered_df):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.header("concurrents préférés par statut de churn")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Concurrents préférés par statut de churn</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         # Création un dataframe qui croise Churn Status et Most Loved Competitor
         
         same_competitor = filtered_df[
@@ -703,8 +800,12 @@ def home_page(filtered_df):
     
     
     with col2:
-        st.header("Migrations réseau (Mois 1 → Mois 2)")
-        import seaborn as sns
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Migrations réseau (Mois 1 → Mois 2)</h3>
+            </div>
+        """, unsafe_allow_html=True)
+    
 
         # 1. Créer une figure et un axe explicitement
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -724,7 +825,12 @@ def home_page(filtered_df):
         st.pyplot(fig)
     
     with col3:
-        st.header("Migrations réseau (interactif)")
+        st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h3 style = "text-align: center;font-weight: bold;">Migrations réseau (interactif)</h3>
+            </div>
+        """, unsafe_allow_html=True)
+    
 
         migration = active_clients.groupby(['Network type subscription in Month 1', 
                                 'Network type subscription in Month 2']).size().reset_index(name='count')

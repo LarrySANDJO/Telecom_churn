@@ -7,16 +7,304 @@ import joblib
 import page_predictions
 import page_recommandations
 import home_page
+from streamlit_option_menu import option_menu
 from script_pipeline import *
 
 
-# Configuration de base
+# Configuration de base---------------------------------------------------
+
 st.set_page_config(
     page_title="Dashboard Churn Télécom", 
-    page_icon="📊", 
+    page_icon="📞", 
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+
+
+#-------------------------------------------- chargement css
+
+# Chargement du css personnalise (modifications des classe et id par defaut de streamlit)
+
+st.markdown("""
+<style>
+
+/* Variables globales */
+:root {
+    --auchan-red: #e63946;
+    --auchan-red-dark: #e63946;
+    --auchan-red-light: #fde8eb;
+    --background-light: #f8f9fa;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --border-radius: 8px;
+}
+
+
+
+.main {
+    padding: 1.5rem;
+}
+
+/* Sidebar */
+.sidebar .sidebar-content {
+    background-color: white;
+    padding: 1rem;
+}
+
+.sidebar-logo {
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.sidebar-logo img {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease;
+}
+
+.sidebar-logo img:hover {
+    transform: scale(1.02);
+}
+
+.sidebar-logo .caption {
+    text-align: center;
+    margin-top: 0.5rem;
+    color: var(--auchan-red);
+    font-weight: 500;
+}
+
+/* Header */
+.dashboard-header {
+    background-color:#0A04AA;
+    color: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-header h1 {
+    text-align: center;
+    font-size: 3rem;
+    color: white;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.dashboard-header h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: white;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.dashboard-header h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: white;
+    font-weight: 600;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* Menu de navigation */
+#MainMenu {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-link {
+    color: var(--auchan-red) !important;
+    transition: all 0.3s ease;
+    border-radius: var(--border-radius);
+    margin: 0.2rem;
+}
+
+.nav-link:hover {
+    background-color: var(--auchan-red-light) !important;
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background-color:#e63946;
+    color: white !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-link .icon {
+    margin-right: 0.5rem;
+}
+
+/* Cards */
+.custom-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.custom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-title {
+    color: var(--auchan-red);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Boutons */
+.stButton > button {
+    background-color: var(--auchan-red);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    background-color: var(--auchan-red-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Widgets Streamlit */
+.stSelectbox, .stTextInput, .stDateInput, stMultiSelect {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Tables */
+.dataframe {
+    border: none !important;
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--border-radius);
+}
+
+.dataframe th {
+    background-color: var(--auchan-red) !important;
+    color: white !important;
+}
+
+.dataframe tr:hover {
+    background-color: var(--auchan-red-light) !important;
+}
+
+/* Footer */
+.footer {
+    background-color: white;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+/* marche pas ! */
+.nav-item{
+    background-color:#e63946;
+
+
+}
+.stSidebar{
+    background-color:#ACAEB0;
+}
+
+            
+
+
+/* Conteneurs personnalisés */
+[data-testid="metric-container"] {
+    box-shadow: 0 0 4px #686664;
+    padding: 10px;
+}
+.plot-container > div {
+    box-shadow: 0 0 2px #070505;
+    padding: 5px;
+    border-color: #000000;
+}
+
+/* Expander */
+div[data-testid="stExpander"] div[role="button"] p {
+    font-size: 1.2rem;
+    color: rgb(0, 0, 0);
+    border-color: #000000;
+}
+
+/* Pied de page */
+.footer {
+    background-color: white;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
+
+# Logo de l'appli-------------------------------------------------------------
+
+st.sidebar.image(
+        "dossier_app_streamlit/image.png",
+        caption="NIGERIA TELECOM BI"
+    )
+
+#------------------------------------
+
+#
+
+def display_header():
+    st.markdown("""
+        <div class="dashboard-header animate-fade-in">
+            <h1 style = "font-weight: bold;">APPLICATION D'ANALYSE DES DONNÉES CLIENTÈLES DE NIGERIA TELECOM</h1>
+        </div>
+    """, unsafe_allow_html=True)
+
+#--------------------------------------------Affichage de l'en-tête 
+
+display_header()
+    
+    
+    
+ 
 
 # Chargement du modèle et du preprocesseur
 model = joblib.load('dossier_app_streamlit/churn_model.pkl')
@@ -50,7 +338,29 @@ def features_importances_colums(data):
 
 # Sidebar de filtres
 def sidebar_filters(df):
-    st.sidebar.title("📊 Filtres")
+    st.sidebar.markdown("""
+        <div class="dashboard-header animate-fade-in">
+            <h3 style = "font-weight: bold;">Filtres</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    
+    # Style du st.multiselect
+    st.markdown("""
+    <style>
+    /* Sélectionne les tags de sélection multiselect */
+    div[data-baseweb="tag"] {
+        background-color: #1d4ed8 !important;  /* bleu */
+        color: white !important;              /* texte blanc */
+        border: none !important;
+    }
+
+    /* Cible l'icône de fermeture (la croix) */
+    div[data-baseweb="tag"] svg {
+        fill: white !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
     # Filtres
     network_types = df['Network type subscription in Month 2'].unique()
@@ -120,50 +430,48 @@ def main():
     df = load_data(data)
     
     df['Churn Status'] = churn_status
+        
+    
+    # Pages de navigation---------------------------------------------------------------------
+    
+    page = option_menu( # voir help du package streamlit_option_menu
+        menu_title=None,
+        options=["Accueil & KPIs", "Prédictions",  "Recommandations"],
+        icons=["house", "tags-fill", "wifi", "cpu"],
+        menu_icon=None,
+        default_index=0,
+        orientation="horizontal",
+        styles={
+            "container": {"padding": "0!important"},
+            "icon": {"font-size": "1.3rem"},
+            "nav-link": {"font-size": "1.2em", "text-align": "center", "margin": "0px"},
+            "nav-link-selected": {"background-color": "#0A04AA"},
+        }
+    )
+    
+    st.markdown("---")
+
     
     
-    # Ajout d'un style CSS pour personnaliser la barre de navigation
-    st.markdown("""
-    <style>
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 20px;
-        background-color: #f0f2f6;
-        border-radius: 10px;
-        padding: 10px;
-    }
+    # Donnees filtrees-------------------------------------
     
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent;
-        border-radius: 5px;
-        padding: 10px 20px;
-        font-weight: 600;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: #3498db;
-        color: white;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Création de la barre de navigation avec st.tabs
-    tabs = st.tabs(["📊 Accueil & KPIs", "🔮 Prédictions", "📋 Recommandations"])
-    
-    # Filtres 
     filtered_df = sidebar_filters(df)
     
     feature_names = features_importances_colums(data)
     
     
-    # Affichage du contenu en fonction de l'onglet sélectionné
-    with tabs[0]:
+    # Affichage des pages------------------------------------
+    
+    if page == "Prédictions":
+        page_predictions.predictions_page(filtered_df, feature_names)
+    elif page == "Recommandations":
+        page_recommandations.recommendations_page(filtered_df)
+    else:
         home_page.home_page(filtered_df)
     
-    with tabs[1]:
-        page_predictions.predictions_page(filtered_df, feature_names)
     
-    with tabs[2]:
-        page_recommandations.recommendations_page(filtered_df)
+    
+    
 
 if __name__ == "__main__":
     main()

@@ -6,125 +6,41 @@ import joblib
 import plotly.graph_objects as go
 import plotly.io as pio
 from script_pipeline import *
+from functions import *
+
 
 pio.templates.default = "plotly_white"
 
 def predictions_page(filtered_df, feature_names):
-    st.title("🔮 prédictions de churn")
+    st.markdown("""
+            <div class="dashboard-header animate-fade-in">
+                <h2 style = "text-align: center;font-weight: bold;">🔮 prédictions de churn</h2>
+            </div>
+        """, unsafe_allow_html=True)
     
     # Chargement du modèle ( contient déjà le pipeline de traitement)
     model = joblib.load('dossier_app_streamlit/churn_model.pkl')
     pipeline = joblib.load('dossier_app_streamlit/preprocessor.joblib')
     
     # Première ligne de métriques
-    col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
 
     # Filtrer uniquement les clients actifs (Churn Status == 0)
     active_clients = filtered_df[filtered_df['Churn Status'] == 0]
     active_count = active_clients.shape[0]
     
     with col1:
-        # KPI: Taux de clients à haut risque (probabilité > 0.7)
+        # KPI: Taux de clients à haut risque (probabilité > 0.6)
         high_risk = active_clients[active_clients['Churn_Probability'] > 0.6].shape[0]
-        st.metric("Clients à haut risque", f"{high_risk:,}({(high_risk / active_count * 100):.1f}%)")
+        st.info('Clients à haut risque',icon="📌")
+        display_custom_metric("Clients à haut risque", f"{high_risk:,}({(high_risk / active_count * 100):.1f}%)", "#0000FF")
+        
        
         
     # Deuxième ligne de graphiques
     col1, col2, col3 = st.columns(3)
     
     
-    # Les styles communs pour les graphiques en barres
-    def style_plotly_figure(fig, title_text, yaxis_title_text, xaxis_title_text=''):
-        fig.update_layout(
-            title=dict(
-                text=title_text,
-                font=dict(size=20, family='Arial Black', color='black', weight='bold')
-            ),
-            xaxis=dict(
-                title=xaxis_title_text,
-                title_font=dict(
-                    size=16,
-                    family='Arial',
-                    color='black',
-                    weight='bold'
-                ),
-                tickfont=dict(
-                    family="Arial Black",
-                    size=12,
-                    color='black'
-                )
-            ),
-            yaxis=dict(
-                title=yaxis_title_text,
-                title_font=dict(
-                    size=16,
-                    family='Arial',
-                    color='black',
-                    weight='bold'
-                ),
-                showticklabels=False,  # Pas de chiffres sur l’axe Y
-                showgrid=False
-            ),
-            font=dict(
-                family="Arial Black",
-                size=12,
-                color='black'
-            ),
-            showlegend=False
-        )
-
-        fig.update_traces(
-            texttemplate='<b>%{text:.1f}%</b>',
-            textposition='outside',
-            textfont=dict(
-                family='Arial, sans-serif',
-                size=12,
-                color='black'
-            )
-        )
-        return fig
-
-    
-    # Style commun aux secteurs
-    def style_pie_chart(fig, title_text):
-        fig.update_layout(
-            title=dict(
-                text=title_text,
-                font=dict(size=20, family='Arial Black', color='black', weight='bold')
-            ),
-            font=dict(
-                family="Arial Black",
-                size=12,
-                color='black'
-            ),
-            showlegend=False  # Suppression de la légende
-        )
-        
-        # Personnalisation des étiquettes et pourcentages dans les secteurs
-        fig.update_traces(
-            textposition='inside',
-            textinfo='percent+label',
-            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
-        )
-        
-        return fig
-    
-    
-    def display_stylized_title(title_text, background="#2a9d8f", color="white"):
-        st.markdown(f"""
-        <div style='
-            background-color: {background};
-            padding: 10px 20px;
-            border-radius: 10px;
-            color: {color};
-            font-family: Arial Black;
-            font-size: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        '>
-            {title_text}
-        </div>
-        """, unsafe_allow_html=True)
 
     with col1:
         # Affichage du titre
@@ -416,7 +332,7 @@ def predictions_page(filtered_df, feature_names):
                 new_data[col] = new_data[col].astype("category")
                         
             st.write(new_data)
-            st.write(new_data.dtypes)
+        
 
 
             
@@ -532,7 +448,6 @@ def predictions_page(filtered_df, feature_names):
         st.write("### Aperçu des données importées")
         st.dataframe(new_data.head())
         
-        st.write(new_data.dtypes)
         
         # Appliquer la transformation avec le pipeline
         new_data_transformed = pipeline.transform(new_data)
