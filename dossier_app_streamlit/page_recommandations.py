@@ -85,7 +85,7 @@ def recommendations_page(filtered_df):
     )
 
     # 3. Afficher le tableau des clients concernés
-    st.subheader("🔍 Clients migrant de la 3G à la 2G")
+    st.subheader("Clients migrant de la 3G à la 2G")
     st.dataframe(
         migration_3g_to_2g[[
             'Customer ID', 
