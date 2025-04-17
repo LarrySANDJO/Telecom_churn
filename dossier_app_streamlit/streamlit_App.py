@@ -365,25 +365,25 @@ div[data-baseweb="select"] [data-testid="stMultiSelect"] span {
     
     /* Style du bouton de l'expander */
     div[data-testid="stExpander"] div[role="button"] p {
-        color: white !important;
-        font-weight: bold !important;
-        font-size: 1.1rem !important;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
     }
     
     /* Style du contenu de l'expander */
     div[data-testid="stExpander"] div[data-testid="stVerticalBlock"] {
-        background-color: white!important;
-        color: white !important;
-        padding: 1rem !important;
-        border-radius: 0 0 10px 10px !important;
+        background-color: whit;
+        color: white;
+        padding: 1rem;
+        border-radius: 0 0 10px 10px;
     }
     
     /* Style du conteneur principal */
     div[data-testid="stExpander"] {
-        background-color: #0A04AA   !important;
-        border: 2px solid #2A0CFF !important;
-        border-radius: 10px !important;
-        margin-bottom: 1rem !important;
+        background-color: #0A04AA  ;
+        border: 2px solid #2A0CFF;
+        border-radius: 10px;
+        margin-bottom: 1rem;
     }
 </style>
 """, unsafe_allow_html=True)

@@ -117,8 +117,8 @@ def afficher_guide_utilisateur():
     st.markdown("""
     <style>
     .streamlit-expanderHeader {
-        background-color: white;
-        color: white;
+        background-color: #f0f8ff;
+        color: black;
         font-weight: bold;
         border-radius: 5px;
         padding: 10px;
