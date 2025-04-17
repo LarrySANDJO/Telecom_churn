@@ -8,7 +8,134 @@ import plotly.io as pio
 import seaborn as sns
 from functions import *
 
-pio.templates.default = "plotly_white"
+#pio.templates.default = "plotly_white"
+# Création d'un template personnalisé
+# custom_template = go.layout.Template(
+#     layout=go.Layout(
+#         # Couleurs principales
+#         colorway=['#0A04AA', '#2A0CFF', '#6A8EFF', '#A4C2FF', '#D4E4FF'],  # Dégradé de bleus
+#         paper_bgcolor='rgba(0,0,0,0)',  # Fond transparent
+#         plot_bgcolor='rgba(0,0,0,0)',   # Fond transparent
+        
+#         # Style des axes
+#         xaxis=dict(
+#             linecolor='#0A04AA',
+#             gridcolor='#D4E4FF',
+#             title_font=dict(color='#0A04AA')
+#         ),
+#         yaxis=dict(
+#             linecolor='#0A04AA',
+#             gridcolor='#D4E4FF',
+#             title_font=dict(color='#0A04AA')
+#         ),
+        
+#         # Titres et polices
+#         title_font=dict(
+#             color='#0A04AA',
+#             size=20
+#         ),
+#         font=dict(
+#             color='#0A04AA',
+#             family="Arial, sans-serif"
+#         ),
+        
+#         # Légende
+#         legend=dict(
+#             bgcolor='rgba(0,0,0,0)',
+#             font=dict(color='#0A04AA'),
+#             orientation='h',
+#             yanchor='bottom',
+#             y=1.02,
+#             xanchor='right',
+#             x=1
+#         )
+#     )
+# )
+
+# # Appliquer le template
+# pio.templates['custom_blue'] = custom_template
+# pio.templates.default = 'custom_blue'
+# Alternative simplifiée :
+# Si vous préférez une version plus simple qui utilise directement votre couleur :
+
+
+
+custom_theme = {
+    'layout': {
+        'colorway': ['#0A04AA', '#2A0CFF', '#6A8EFF', '#A4C2FF'],
+        'title': {'font': {'color': '#0A04AA'}},
+        'xaxis': {
+            'title': {'font': {'color': '#0A04AA'}},
+            'tickfont': {'color': '#0A04AA'},
+            'gridcolor': 'lightgray'
+        },
+        'yaxis': {
+            'title': {'font': {'color': '#0A04AA'}},
+            'tickfont': {'color': '#0A04AA'},
+            'gridcolor': 'lightgray'
+        }
+    }
+}
+
+pio.templates['my_blue_theme'] = custom_theme
+pio.templates.default = 'my_blue_theme'
+
+# custom_blue_template = {
+#     'layout': {
+#         'plot_bgcolor': 'rgba(10, 4, 170, 0.07)',
+#         'paper_bgcolor': 'white',
+#         'font': {'color': '#0A04AA'},
+#         'xaxis': {
+#             'gridcolor': 'rgba(10, 4, 170, 0.1)',
+#             'linecolor': '#0A04AA'
+#         },
+#         'yaxis': {
+#             'gridcolor': 'rgba(10, 4, 170, 0.1)',
+#             'linecolor': '#0A04AA'
+#         }
+#     }
+# }
+
+# pio.templates['custom_blue'] = custom_blue_template
+# pio.templates.default = 'custom_blue'
+
+# custom_ggplot = {
+#     'layout': {
+#         'plot_bgcolor': '#f8f9fa',
+#         'paper_bgcolor': 'white',
+#         'font': {'color': '#0A04AA'},
+#         'colorscale': {'sequential': ['#E6F7FF', '#0A04AA']}
+#     }
+# }
+# pio.templates['blue_ggplot'] = custom_ggplot
+# pio.templates.default = 'blue_ggplot'
+
+
+# night_blue_theme = {
+#     'layout': {
+#         'plot_bgcolor': 'rgba(4, 2, 85, 0.7)',  # Version plus foncée de #0A04AA
+#         'paper_bgcolor': '#040225',
+#         'font': {'color': '#E6E5FF', 'family': 'Segoe UI'},
+#         'xaxis': {
+#             'gridcolor': 'rgba(90, 80, 255, 0.2)',
+#             'linecolor': '#8884FF'
+#         },
+#         'yaxis': {
+#             'gridcolor': 'rgba(90, 80, 255, 0.2)',
+#             'linecolor': '#8884FF'
+#         },
+#         'colorway': ['#8884FF', '#C1C0FF', '#4E36E6', '#A5A3FF', '#0A04AA'],
+#         'hovermode': 'x unified',
+#         'hoverlabel': {
+#             'bgcolor': '#0A04AA',
+#             'bordercolor': '#4E36E6',
+#             'font': {'size': 12}
+#         }
+#     }
+# }
+
+# pio.templates['night_blue'] = night_blue_theme
+
 
 # Page 1: Accueil & KPIs
 def home_page(filtered_df):
@@ -44,6 +171,80 @@ def home_page(filtered_df):
     st.markdown("---")
 
     
+    # Les styles communs pour les graphiques en barres
+    def style_plotly_figure(fig, title_text, yaxis_title_text, xaxis_title_text=''):
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                font=dict(size=20, family='Arial Black', color='black', weight='bold')
+            ),
+            xaxis=dict(
+                title=xaxis_title_text,
+                title_font=dict(
+                    size=16,
+                    family='Arial',
+                    color='black',
+                    weight='bold'
+                ),
+                tickfont=dict(
+                    family="Arial Black",
+                    size=12,
+                    color='black'
+                )
+            ),
+            yaxis=dict(
+                title=yaxis_title_text,
+                title_font=dict(
+                    size=16,
+                    family='Arial',
+                    color='black',
+                    weight='bold'
+                ),
+                showticklabels=False,  # Pas de chiffres sur l’axe Y
+                showgrid=False
+            ),
+            font=dict(
+                family="Arial Black",
+                size=12,
+                color='black'
+            )
+        )
+
+        fig.update_traces(
+            texttemplate='<b>%{text:.1f}%</b>',
+            textposition='outside',
+            textfont=dict(
+                family='Arial, sans-serif',
+                size=12,
+                color='black'
+            )
+        )
+        return fig
+
+    
+    # Style commun aux secteurs
+    def style_pie_chart(fig, title_text):
+        fig.update_layout(
+            title=dict(
+                text=title_text,
+                font=dict(size=20, family='Arial Black', color='black', weight='bold')
+            ),
+            font=dict(
+                family="Arial Black",
+                size=12,
+                color='black'
+            )
+            #showlegend=False  # Suppression de la légende
+        )
+        
+        # Personnalisation des étiquettes et pourcentages dans les secteurs
+        fig.update_traces(
+            textposition='inside',
+            textinfo='percent+label',
+            insidetextfont=dict(size=14, family="Arial Black")  # Texte en gras
+        )
+        
+        return fig
 
     
     
@@ -90,8 +291,6 @@ def home_page(filtered_df):
         st.plotly_chart(fig, use_container_width=True)
 
 
-
-    
     with col2:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
@@ -351,7 +550,7 @@ def home_page(filtered_df):
     with col1:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition des clients par segment</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des clients par segment de dépense</h3>
             </div>
         """, unsafe_allow_html=True)
         
@@ -380,7 +579,7 @@ def home_page(filtered_df):
     with col2:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par segment</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses totales par segment</h3>
             </div>
         """, unsafe_allow_html=True)
        
@@ -476,7 +675,7 @@ def home_page(filtered_df):
     with col4:
         st.markdown("""
             <div class="dashboard-header animate-fade-in">
-                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par type de réseau</h3>
+                <h3 style = "text-align: center;font-weight: bold;">Répartition des dépenses par type de réseau (Mois 2)</h3>
             </div>
         """, unsafe_allow_html=True)
         
@@ -708,7 +907,7 @@ def home_page(filtered_df):
             fig,
             title_text="",
             yaxis_title_text="Pourcentage",
-            xaxis_title_text="statut de churn"
+            xaxis_title_text="statut de churn",
         )
 
         fig.update_layout(
@@ -722,6 +921,11 @@ def home_page(filtered_df):
                 x=1
             )
         )
+        
+        fig.update_traces(go.Bar(
+        textfont=dict(color='white', size=12, weight='bold'),
+        textposition='auto'
+        ))
         # Afficher le graphique dans Streamlit
         st.plotly_chart(fig, use_container_width=True)
     
@@ -776,5 +980,7 @@ def home_page(filtered_df):
         
 
         st.plotly_chart(fig)
-        
+    
+    
+    
     

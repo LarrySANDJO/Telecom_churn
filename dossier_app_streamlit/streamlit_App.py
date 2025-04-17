@@ -274,11 +274,131 @@ div[data-testid="stExpander"] div[role="button"] p {
 .animate-fade-in {
     animation: fadeIn 0.5s ease forwards;
 }
+
+/* Style pour le multiselect */
+div[data-baseweb="select"] {
+    background-color: white !important;
+    border-radius: 8px !important;
+    border: 1px solid #0A04AA !important;
+}
+
+/* Style pour le conteneur du multiselect */
+div[data-baseweb="popover"] {
+    background-color: white !important;
+    border: 1px solid #0A04AA !important;
+    border-radius: 8px !important;
+}
+
+/* Style pour les options dans le dropdown */
+div[role="listbox"] div[role="option"] {
+    color: #0A04AA !important;
+    background-color: white !important;
+}
+
+/* Style pour l'option sélectionnée dans le dropdown */
+div[role="listbox"] div[role="option"][aria-selected="true"] {
+    background-color: #e8e8ff !important;
+    color: #0A04AA !important;
+}
+
+/* Style pour les tags des éléments sélectionnés */
+div[data-baseweb="tag"] {
+    background-color: #0A04AA !important;
+    color: white !important;
+    border-radius: 12px !important;
+    margin: 2px !important;
+}
+
+/* Style de hover sur les options */
+div[role="option"]:hover {
+    background-color: #f0f0ff !important;
+}
+
+/* Style du texte à l'intérieur du select */
+div[data-baseweb="select"] [data-testid="stMultiSelect"] span {
+    color: #0A04AA !important;
+    font-weight: 500 !important;
+}
+
+/* Fond de la page principale */ 
+    .stApp {
+        background-color: #f0f8ff;  /*  bleu clair */
+        background-image: linear-gradient(160deg, #e6f0ff 0%, #cce0ff 100%);
+    }
+/* Fond de la sidebar */
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #E2EAF4;  /* Bleu plus foncé */
+    }
+    
+    /* Style général des labels de filtre */
+    .stMultiSelect [data-baseweb="tag"] {
+        background-color: #0A04AA !important;
+        color: white !important;
+        font-weight: bold !important;
+    }
+    
+    
+    
+    div[data-testid="stMetric"] {
+    background-color: #0A04AA !important;
+    color: white !important;
+    border-radius: 10px;
+    padding: 5px 15px;
+    }
+    
+
+[data-testid="stMetricLabel"] * {
+    color: white !important;
+    font-weight: bold !important;
+}
+    
+    div[data-testid="stMetricValue"] {
+    color: white !important;
+    font-weight: bold !important;
+    }
+    
+    /* Style des titres des sections */
+    .st-emotion-cache-16txtl3 {
+        color: white !important;
+        font-weight: bold !important;
+    }   
+    
+    /* Style du bouton de l'expander */
+    div[data-testid="stExpander"] div[role="button"] p {
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 1.1rem !important;
+    }
+    
+    /* Style du contenu de l'expander */
+    div[data-testid="stExpander"] div[data-testid="stVerticalBlock"] {
+        background-color: white!important;
+        color: white !important;
+        padding: 1rem !important;
+        border-radius: 0 0 10px 10px !important;
+    }
+    
+    /* Style du conteneur principal */
+    div[data-testid="stExpander"] {
+        background-color: #0A04AA   !important;
+        border: 2px solid #2A0CFF !important;
+        border-radius: 10px !important;
+        margin-bottom: 1rem !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 
-
+# /* Fond de la page principale */ #f0f8ff
+    # .stApp {
+    #     background-color: #E29523;  /* Votre bleu foncé */
+    #     background-image: linear-gradient(160deg, #0A04AA 0%, #2A0CFF 100%);
+    # }
+    
+    # /* Fond de la sidebar */
+    # [data-testid="stSidebar"] > div:first-child {
+    #     background-color: #E29523;  /* Bleu plus foncé */
+    # }
 
 
 # Logo de l'appli-------------------------------------------------------------
@@ -295,7 +415,7 @@ st.sidebar.image(
 def display_header():
     st.markdown("""
         <div class="dashboard-header animate-fade-in">
-            <h1 style = "font-weight: bold;">DASHBOARD D'ANALYSE DU "CHURN CLIENT" CHEZ NIGERIA TELECOM</h1>
+            <h1 style = "font-weight: bold;">DASHBOARD D'ANALYSE DE L'ATTRITION CLIENT CHEZ NIGERIA TELECOM</h1>
         </div>
     """, unsafe_allow_html=True)
 
@@ -337,6 +457,11 @@ def features_importances_colums(data):
     
     return data_preprocessed.columns
 
+
+    # CSS pour personnaliser les multiselect
+    
+    
+
 # Sidebar de filtres
 def sidebar_filters(df):
     st.sidebar.markdown("""
@@ -346,22 +471,7 @@ def sidebar_filters(df):
     """, unsafe_allow_html=True)
     
     
-    # Style du st.multiselect
-    st.markdown("""
-    <style>
-    /* Sélectionne les tags de sélection multiselect */
-    div[data-baseweb="tag"] {
-        background-color: #1d4ed8 !important;  /* bleu */
-        color: white !important;              /* texte blanc */
-        border: none !important;
-    }
-
-    /* Cible l'icône de fermeture (la croix) */
-    div[data-baseweb="tag"] svg {
-        fill: white !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    
     
     # Filtres
     network_types = df['Network type subscription in Month 2'].unique()
@@ -470,9 +580,8 @@ def main():
     else:
         home_page.home_page(filtered_df)
     
+    # Insérer l'appel à cette fonction sur la page d'accueil
+    afficher_guide_utilisateur()
     
-    
-    
-
 if __name__ == "__main__":
     main()

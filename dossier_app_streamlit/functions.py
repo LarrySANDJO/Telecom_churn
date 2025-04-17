@@ -108,3 +108,108 @@ def display_stylized_title(title_text, background="#0A04AA", color="white"):
         {title_text}
     </div>
     """, unsafe_allow_html=True)
+    
+def afficher_guide_utilisateur():
+    # CSS personnalisé pour l'expander
+    
+    
+    # CSS personnalisé pour modifier l'apparence de l'expander
+    st.markdown("""
+    <style>
+    .streamlit-expanderHeader {
+        background-color: white;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    with st.expander("Guide d'utilisation"):
+
+        st.markdown("""
+        # Guide Technique - Dashboard d'Analyse d'Attrition Client
+
+        Ce document présente un briefing du calcul des indicateurs et la construction des visualisations du dashboard.
+
+        ## Indicateurs de Performance (KPIs)
+
+        - **Taux de Churn actuel** : Pourcentage de clients perdus sur la période de 2 mois étudiée
+        - **Taux d'actifs** : Pourcentage de clients toujours présents dans la base
+        - **Ancienneté moyenne** : Durée moyenne d'engagement des clients (en mois)
+        - **Taux de plaintes** : Proportion de clients ayant déposé une réclamation
+
+        ## Segmentation Client
+
+        - **Méthode** : Clustering basé sur les dépenses des 2 premiers mois de 2017
+        - **Segments** :
+        - Dépense "Faible" : < 2 332,63 (clients peu engageants)
+        - Dépense "Moyenne" : 2 332,63 ≤ dépenses < 9 969,21 (clients modérément actifs)
+        - Dépense "Élevé" : ≥ 9 969,21 (clients hautement rentables)
+
+        ## Visualisations Analytiques
+
+        ### Page d'accueil (KPIs)
+
+        1. **Segmentation Client** 
+        - Données : Pourcentage de clients dans chaque segment de dépense
+
+        2. **Churn par segment**
+        - Données : Pourcentage de churn par segment de dépense
+
+        3. **Churn et réclamations**
+        - Données : Taux de churn par niveau de plaintes
+        - Segmentation :
+            - 0 : Aucune plainte
+            - 1-3 : Faible plainte
+            - >3 : Niveau élevé
+
+        4. **Churn et ancienneté**
+        - Données : Taux de churn par durée d'ancienneté
+        - Segmentation :
+            - ≤12 mois : Nouveau
+            - ≤36 mois : Établi
+            - >36 mois : Fidèle
+
+        5. **Concurrents préférés**
+        - Données : Répartition des clients partis vers chaque concurrent
+
+        6. **Rentabilité des réseaux**
+        - Données : Contribution de chaque type de réseau au chiffre d'affaires
+
+        7. **Répartition des dépenses par type de réseau**
+        - Données : Pourcentage des dépenses totales par type de réseau au mois 2
+
+        8. **Répartition des dépenses par service**
+        - Données : Décomposition du panier moyen entre services (SMS, Data, appels Onnet/Offnet)
+
+        9. **Contribution des segments aux dépenses totales**
+        - Données : Valeur économique de chaque segment client
+
+        10. **Migrations réseaux**
+            - Type : Matrice de flux (Sankey ou heatmap)
+            - Données : Migrations d'abonnements réseau (2G, 3G, Other) entre deux mois consécutifs
+
+        ### Page de prédictions
+
+        1. **KPI principal**
+        - Nombre de clients prédits à haut risque (>60%)
+
+        2. **Répartition des clients à haut risque par segment**
+        - Données : Proportion de chaque segment parmi les clients à haut risque
+
+        3. **Taux de clients prédits à haut risque par segment**
+        - Données : Pour chaque segment, proportion des clients à haut risque
+
+        4. **Analyse des facteurs d'influence**
+        - Données : Variables influençant le plus la décision d'attrition
+        
+        ### Page de prédictions
+        
+        Cette page fournit concrètement les clients selon différents critères et 
+        en fonction du nombre que l'on veut observer. Les filtres sur la barre latérale 
+        permettent d'avoir des résultats plus fins selon les besoins.
+                """)
+        
+        
+
