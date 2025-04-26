@@ -65,30 +65,47 @@ class ImputeByIQR(BaseEstimator, TransformerMixin):
 # ------------------------------
 # Étape 1 : Traitement des variables catégorielles
 # ------------------------------
+from sklearn.base import BaseEstimator, TransformerMixin
+import pandas as pd
+
 class CustomCategoricalImputer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
-        self.most_frequent_1 = X[cat_features[0]].mode()[0]
-        self.most_frequent_2 = X[cat_features[1]].mode()[0]
-        self.most_frequent_comp_1 = X[cat_features[2]].mode()[0]
-        self.most_frequent_comp_2 = X[cat_features[3]].mode()[0]
+        self.cat_features = cat_features  # sauvegarder les noms pour utiliser dans transform
+        self.most_frequent_1 = X[self.cat_features[0]].mode()[0]
+        self.most_frequent_2 = X[self.cat_features[1]].mode()[0]
+        self.most_frequent_comp_1 = X[self.cat_features[2]].mode()[0]
+        self.most_frequent_comp_2 = X[self.cat_features[3]].mode()[0]
         return self
 
     def transform(self, X):
         X = X.copy()
-        for col in cat_features[2:]:
+
+        # Remplacer '0' par 'Aucun' dans les deux colonnes complémentaires
+        for col in self.cat_features[2:]:
             X[col].replace('0', 'Aucun', inplace=True)
             X[col].fillna('Aucun', inplace=True)
 
-        mask1 = X[cat_features[0]].isna() & X[cat_features[1]].notna()
-        mask2 = X[cat_features[1]].isna() & X[cat_features[0]].notna()
-        X.loc[mask1, cat_features[0]] = X.loc[mask1, cat_features[1]]
-        X.loc[mask2, cat_features[1]] = X.loc[mask2, cat_features[0]]
+        # Harmoniser les catégories entre cat_features[0] et cat_features[1]
+        if pd.api.types.is_categorical_dtype(X[self.cat_features[0]]) and pd.api.types.is_categorical_dtype(X[self.cat_features[1]]):
+            combined_categories = pd.Index(X[self.cat_features[0]].cat.categories).union(X[self.cat_features[1]].cat.categories)
+            X[self.cat_features[0]] = X[self.cat_features[0]].cat.set_categories(combined_categories)
+            X[self.cat_features[1]] = X[self.cat_features[1]].cat.set_categories(combined_categories)
 
-        X[cat_features[0]].fillna(self.most_frequent_1, inplace=True)
-        X[cat_features[1]].fillna(self.most_frequent_2, inplace=True)
-        X[cat_features[2]].fillna(self.most_frequent_comp_1, inplace=True)
-        X[cat_features[3]].fillna(self.most_frequent_comp_2, inplace=True)
+        # Correction du masquage
+        mask1 = X[self.cat_features[0]].isna() & X[self.cat_features[1]].notna()
+        mask2 = X[self.cat_features[1]].isna() & X[self.cat_features[0]].notna()
+
+        X.loc[mask1, self.cat_features[0]] = X.loc[mask1, self.cat_features[1]]
+        X.loc[mask2, self.cat_features[1]] = X.loc[mask2, self.cat_features[0]]
+
+        # Remplissage des valeurs manquantes avec les valeurs les plus fréquentes
+        X[self.cat_features[0]].fillna(self.most_frequent_1, inplace=True)
+        X[self.cat_features[1]].fillna(self.most_frequent_2, inplace=True)
+        X[self.cat_features[2]].fillna(self.most_frequent_comp_1, inplace=True)
+        X[self.cat_features[3]].fillna(self.most_frequent_comp_2, inplace=True)
+
         return X
+
 
 class FrequencyEncoder(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
