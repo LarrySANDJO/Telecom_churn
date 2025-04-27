@@ -373,14 +373,14 @@ div[data-baseweb="select"] [data-testid="stMultiSelect"] span {
     /* Style du contenu de l'expander */
     div[data-testid="stExpander"] div[data-testid="stVerticalBlock"] {
         background-color: whit;
-        color: white;
+        color: black;
         padding: 1rem;
         border-radius: 0 0 10px 10px;
     }
     
     /* Style du conteneur principal */
     div[data-testid="stExpander"] {
-        background-color: #0A04AA  ;
+        background-color: #E4E4F1  ;
         border: 2px solid #2A0CFF;
         border-radius: 10px;
         margin-bottom: 1rem;
