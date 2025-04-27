@@ -94,7 +94,7 @@ Dédié à l'analyse et la prédiction de l’attrition client, ce dashboard s'a
 
 ## 📌 Auteurs 
 
-Les auteurs de ce projet sont essentiellement des _Élèves ingénieurs statisticiens économistes _ d'ISE2 2024-2025. Il s'agit de :
+Les auteurs de ce projet sont essentiellement des _Élèves ingénieurs statisticiens économistes_  d'ISE2 2024-2025. Il s'agit de :
 
 - KENNE YONTA Lesline Meralda 
 - MATANG KUETE Josette Victoire
